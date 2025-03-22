@@ -1,0 +1,94 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-xl);
+    background-color: var(--color-white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .logo a {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin: 0 var(--spacing-xl);
+  }
+  
+  .nav-links a {
+    color: var(--color-text);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+  }
+  
+  .nav-links a:hover {
+    color: var(--color-primary);
+    background-color: rgba(46, 107, 70, 0.1);
+  }
+  
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+  }
+  
+  .search-bar input {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius-sm);
+    width: 220px;
+    font-size: 0.9rem;
+  }
+  
+  .cart-icon {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    transition: background-color 0.2s ease;
+  }
+  
+  .cart-icon:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-white);
+  }
+  
+  @media (max-width: 768px) {
+    .navbar {
+      flex-direction: column;
+      padding: var(--spacing-md);
+    }
+    
+    .logo {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .nav-links {
+      margin: var(--spacing-md) 0;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .nav-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .search-bar input {
+      width: 150px;
+    }
+  }

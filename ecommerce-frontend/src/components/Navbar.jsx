@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
 import './Navbar.css';
 
 export default function Navbar() {
+  const { cart } = useCart();
+  
   return (
     <nav className="navbar">
       <div className="logo">
@@ -18,7 +21,7 @@ export default function Navbar() {
         <div className="search-bar">
           <input type="text" placeholder="Search for organic products..." />
         </div>
-        <Link to="/cart" className="cart-icon">Cart (0)</Link>
+        <Link to="/cart" className="cart-icon">Cart ({cart.totalItems})</Link>
       </div>
     </nav>
   );

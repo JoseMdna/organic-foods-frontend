@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api';
+import { useCart } from '../contexts/CartContext';
 import './ProductDetail.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     api.get(`products/${id}/`)
@@ -15,6 +17,12 @@ export default function ProductDetail() {
       })
       .catch(err => console.error('Error fetching product:', err));
   }, [id]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product, quantity);
+    }
+  };
 
   if (!product) return <div className="loading">Loading...</div>;
 
@@ -42,7 +50,7 @@ export default function ProductDetail() {
               <span>{quantity}</span>
               <button onClick={() => setQuantity(quantity + 1)}>+</button>
             </div>
-            <button className="add-to-cart">Add to Cart</button>
+            <button className="add-to-cart" onClick={handleAddToCart}>Add to Cart</button>
           </div>
           
           <div className="nutritional-info">

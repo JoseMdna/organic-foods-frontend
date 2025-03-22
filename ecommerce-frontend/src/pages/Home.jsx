@@ -174,18 +174,17 @@ export default function Home() {
       <section className="recipes-preview">
         <h2>Organic Recipe Ideas</h2>
         <div className="recipes-grid">
-          {/* Recipe previews would go here */}
           <div className="recipe-card">
-            <img src="/images/recipe1.jpg" alt="Summer salad" />
-            <h3>Summer Vegetable Salad</h3>
-            <p>Fresh, crisp, and perfect for warm days</p>
-          </div>
-          <div className="recipe-card">
-            <img src="/images/recipe2.jpg" alt="Berry smoothie" />
-            <h3>Berry Protein Smoothie</h3>
-            <p>Start your day with antioxidants and energy</p>
-          </div>
+           <div style={{ height: '200px', backgroundColor: 'var(--color-secondary)', opacity: 0.7 }}></div>
+           <h3>Summer Vegetable Salad</h3>
+           <p>Fresh, crisp, and perfect for warm days</p>
         </div>
+        <div className="recipe-card">
+         <div style={{ height: '200px', backgroundColor: 'var(--color-accent)', opacity: 0.7 }}></div>
+         <h3>Berry Protein Smoothie</h3>
+         <p>Start your day with antioxidants and energy</p>
+       </div>
+    </div>
       </section>
     </div>
   );
