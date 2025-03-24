@@ -9,9 +9,6 @@
     padding: var(--spacing-xxl) var(--spacing-md);
     margin-bottom: var(--spacing-xl);
     background-color: var(--color-background);
-    /* background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('/images/hero-bg.jpg'); */
-    background-size: cover;
-    background-position: center;
     border-radius: var(--border-radius-lg);
   }
   
@@ -162,7 +159,6 @@
     color: var(--color-text-light);
   }
 
-  /* Add to Home.css */
 .recipe-nutrition {
   display: flex;
   flex-wrap: wrap;

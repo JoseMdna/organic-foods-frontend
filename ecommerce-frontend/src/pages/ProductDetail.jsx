@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getCuratedProducts } from '../mockData';
 import { useParams } from 'react-router-dom';
 import api from '../api';
 import { useCart } from '../contexts/CartContext';
@@ -11,11 +12,23 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
 
   useEffect(() => {
+    setProduct(null);
+    
     api.get(`products/${id}/`)
       .then(res => {
         setProduct(res.data);
       })
-      .catch(err => console.error('Error fetching product:', err));
+      .catch(err => {
+        console.error('Error fetching product:', err);
+        const curatedProducts = getCuratedProducts();
+        const foundProduct = curatedProducts.find(p => p.id === parseInt(id));
+        
+        if (foundProduct) {
+          setProduct(foundProduct);
+        } else {
+          setProduct(curatedProducts[0]);
+        }
+      });
   }, [id]);
 
   const handleAddToCart = () => {
