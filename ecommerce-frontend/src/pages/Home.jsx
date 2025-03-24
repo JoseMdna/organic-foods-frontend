@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
 import api from '../api';
 import ProductCard from '../components/ProductCard';
 import './Home.css';
+
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -27,11 +29,7 @@ export default function Home() {
       });
   }, []);
 
-  useEffect(() => {
-    applyFilters();
-  }, [activeFilters, searchQuery, products]);
-
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let result = [...products];
     
     // Category filter
@@ -56,7 +54,11 @@ export default function Home() {
     }
     
     setFilteredProducts(result);
-  };
+  }, [activeFilters, searchQuery, products]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleCategoryChange = (category) => {
     setActiveFilters({...activeFilters, category});
@@ -171,21 +173,41 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="recipes-preview">
-        <h2>Organic Recipe Ideas</h2>
-        <div className="recipes-grid">
-          <div className="recipe-card">
-           <div style={{ height: '200px', backgroundColor: 'var(--color-secondary)', opacity: 0.7 }}></div>
-           <h3>Summer Vegetable Salad</h3>
-           <p>Fresh, crisp, and perfect for warm days</p>
-        </div>
-        <div className="recipe-card">
-         <div style={{ height: '200px', backgroundColor: 'var(--color-accent)', opacity: 0.7 }}></div>
-         <h3>Berry Protein Smoothie</h3>
-         <p>Start your day with antioxidants and energy</p>
-       </div>
+<section className="recipes-preview">
+  <h2>Farm-to-Table Recipe Ideas</h2>
+  <div className="recipes-grid">
+    <div className="recipe-card">
+      <div style={{ height: '200px', backgroundColor: 'var(--color-secondary)', opacity: 0.7 }}></div>
+      <h3>Summer Vegetable Salad</h3>
+      <p>Fresh, crisp, and perfect for warm days</p>
+      <div className="recipe-nutrition">
+        <span>Organic</span> • <span>Vegan</span> • <span>Gluten-Free</span>
+      </div>
+      <Link to="/recipes/summer-salad" className="recipe-link">View Recipe</Link>
     </div>
-      </section>
+    <div className="recipe-card">
+      <div style={{ height: '200px', backgroundColor: 'var(--color-accent)', opacity: 0.7 }}></div>
+      <h3>Berry Protein Smoothie</h3>
+      <p>Start your day with antioxidants and energy</p>
+      <div className="recipe-nutrition">
+        <span>Vegetarian</span> • <span>Antioxidant-Rich</span>
+      </div>
+      <Link to="/recipes/berry-smoothie" className="recipe-link">View Recipe</Link>
+    </div>
+    <div className="recipe-card">
+      <div style={{ height: '200px', backgroundColor: 'var(--color-primary)', opacity: 0.7 }}></div>
+      <h3>Organic Quinoa Bowl</h3>
+      <p>Nutrient-packed complete meal with local vegetables</p>
+      <div className="recipe-nutrition">
+        <span>Organic</span> • <span>Protein-Rich</span> • <span>Vegan</span>
+      </div>
+      <Link to="/recipes/quinoa-bowl" className="recipe-link">View Recipe</Link>
+    </div>
+  </div>
+  <div className="view-all-recipes">
+    <Link to="/recipes">View All Recipes</Link>
+  </div>
+</section>
     </div>
   );
 }

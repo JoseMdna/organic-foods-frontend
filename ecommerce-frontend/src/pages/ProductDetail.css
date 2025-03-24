@@ -179,3 +179,43 @@
     line-height: 1.7;
     color: var(--color-text-light);
   }
+
+.environmental-impact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin: var(--spacing-md) 0 var(--spacing-xl);
+}
+
+.impact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.impact-label {
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+}
+
+.impact-rating {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.impact-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+}
+
+.impact-dot.filled {
+  background-color: var(--color-primary);
+}
+
+.impact-text {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+}

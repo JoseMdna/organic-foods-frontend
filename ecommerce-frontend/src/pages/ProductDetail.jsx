@@ -82,12 +82,38 @@ export default function ProductDetail() {
       </div>
       
       <div className="product-additional">
-        <h3>Sourcing & Sustainability</h3>
-        <p>{product.sourcing || 'We are committed to sourcing this product in the most environmentally responsible way possible.'}</p>
-        
-        <h3>Storage Tips</h3>
-        <p>{product.storageTips || 'For best quality, store in refrigerator and consume within a few days of purchase.'}</p>
+  <h3>Sourcing & Sustainability</h3>
+  <p>{product.sourcing || 'We partner with local farmers who practice sustainable agriculture. Our products are grown without synthetic pesticides and harvested at peak ripeness to ensure maximum nutrition and flavor. By choosing this product, you\'re supporting environmentally responsible farming practices and reducing food miles.'}</p>
+  
+  <h3>Environmental Impact</h3>
+  <div className="environmental-impact">
+    <div className="impact-item">
+      <span className="impact-label">Carbon Footprint</span>
+      <div className="impact-rating">
+        <span className="impact-dot filled"></span>
+        <span className="impact-dot filled"></span>
+        <span className="impact-dot"></span>
+        <span className="impact-dot"></span>
+        <span className="impact-dot"></span>
       </div>
+      <span className="impact-text">Low</span>
+    </div>
+    <div className="impact-item">
+      <span className="impact-label">Water Usage</span>
+      <div className="impact-rating">
+        <span className="impact-dot filled"></span>
+        <span className="impact-dot filled"></span>
+        <span className="impact-dot filled"></span>
+        <span className="impact-dot"></span>
+        <span className="impact-dot"></span>
+      </div>
+      <span className="impact-text">Medium</span>
+    </div>
+  </div>
+  
+  <h3>Storage Tips</h3>
+  <p>{product.storageTips || 'For best quality, store in refrigerator and consume within a few days of purchase.'}</p>
+</div>
     </div>
   );
 }
