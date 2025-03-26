@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { getCuratedProducts } from '../mockData';
 import { useParams } from 'react-router-dom';
 import api from '../api';
@@ -10,6 +11,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const { currentUser, isAuthenticated } = useAuth();
 
   useEffect(() => {
     setProduct(null);
@@ -57,6 +59,41 @@ export default function ProductDetail() {
           <p className="product-price">${product.price}</p>
           <p className="product-description">{product.description}</p>
           
+          {isAuthenticated && currentUser && product.created_by === currentUser.username && (
+            <div className="product-owner-actions" style={{
+              marginBottom: 'var(--spacing-md)',
+              display: 'flex',
+              gap: 'var(--spacing-md)'
+            }}>
+              <button 
+                className="edit-product" 
+                style={{
+                  backgroundColor: 'var(--color-secondary)',
+                  color: 'white',
+                  border: 'none',
+                  padding: 'var(--spacing-sm) var(--spacing-md)',
+                  borderRadius: 'var(--border-radius-sm)',
+                  fontWeight: '500'
+                }}
+              >
+                Edit Product
+              </button>
+              <button 
+                className="delete-product"
+                style={{
+                  backgroundColor: '#d9534f',
+                  color: 'white',
+                  border: 'none',
+                  padding: 'var(--spacing-sm) var(--spacing-md)',
+                  borderRadius: 'var(--border-radius-sm)',
+                  fontWeight: '500'
+                }}
+              >
+                Delete Product
+              </button>
+            </div>
+          )}
+          
           <div className="product-actions">
             <div className="quantity-selector">
               <button onClick={() => quantity > 1 && setQuantity(quantity - 1)}>-</button>
@@ -95,38 +132,38 @@ export default function ProductDetail() {
       </div>
       
       <div className="product-additional">
-  <h3>Sourcing & Sustainability</h3>
-  <p>{product.sourcing || 'We partner with local farmers who practice sustainable agriculture. Our products are grown without synthetic pesticides and harvested at peak ripeness to ensure maximum nutrition and flavor. By choosing this product, you\'re supporting environmentally responsible farming practices and reducing food miles.'}</p>
-  
-  <h3>Environmental Impact</h3>
-  <div className="environmental-impact">
-    <div className="impact-item">
-      <span className="impact-label">Carbon Footprint</span>
-      <div className="impact-rating">
-        <span className="impact-dot filled"></span>
-        <span className="impact-dot filled"></span>
-        <span className="impact-dot"></span>
-        <span className="impact-dot"></span>
-        <span className="impact-dot"></span>
+        <h3>Sourcing & Sustainability</h3>
+        <p>{product.sourcing || 'We partner with local farmers who practice sustainable agriculture. Our products are grown without synthetic pesticides and harvested at peak ripeness to ensure maximum nutrition and flavor. By choosing this product, you\'re supporting environmentally responsible farming practices and reducing food miles.'}</p>
+        
+        <h3>Environmental Impact</h3>
+        <div className="environmental-impact">
+          <div className="impact-item">
+            <span className="impact-label">Carbon Footprint</span>
+            <div className="impact-rating">
+              <span className="impact-dot filled"></span>
+              <span className="impact-dot filled"></span>
+              <span className="impact-dot"></span>
+              <span className="impact-dot"></span>
+              <span className="impact-dot"></span>
+            </div>
+            <span className="impact-text">Low</span>
+          </div>
+          <div className="impact-item">
+            <span className="impact-label">Water Usage</span>
+            <div className="impact-rating">
+              <span className="impact-dot filled"></span>
+              <span className="impact-dot filled"></span>
+              <span className="impact-dot filled"></span>
+              <span className="impact-dot"></span>
+              <span className="impact-dot"></span>
+            </div>
+            <span className="impact-text">Medium</span>
+          </div>
+        </div>
+        
+        <h3>Storage Tips</h3>
+        <p>{product.storageTips || 'For best quality, store in refrigerator and consume within a few days of purchase.'}</p>
       </div>
-      <span className="impact-text">Low</span>
-    </div>
-    <div className="impact-item">
-      <span className="impact-label">Water Usage</span>
-      <div className="impact-rating">
-        <span className="impact-dot filled"></span>
-        <span className="impact-dot filled"></span>
-        <span className="impact-dot filled"></span>
-        <span className="impact-dot"></span>
-        <span className="impact-dot"></span>
-      </div>
-      <span className="impact-text">Medium</span>
-    </div>
-  </div>
-  
-  <h3>Storage Tips</h3>
-  <p>{product.storageTips || 'For best quality, store in refrigerator and consume within a few days of purchase.'}</p>
-</div>
     </div>
   );
 }

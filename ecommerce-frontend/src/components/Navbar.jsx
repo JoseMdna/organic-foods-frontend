@@ -1,10 +1,16 @@
 import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import './Navbar.css';
 
 export default function Navbar() {
   const { cart } = useCart();
+  const { currentUser, logout, isAuthenticated } = useAuth();
+  
+  const handleLogout = async () => {
+    await logout();
+  };
   
   return (
     <nav className="navbar">
@@ -21,7 +27,19 @@ export default function Navbar() {
         <div className="search-bar">
           <input type="text" placeholder="Search for organic products..." />
         </div>
+        
         <Link to="/cart" className="cart-icon">Cart ({cart.totalItems})</Link>
+        
+        {isAuthenticated ? (
+          <div className="user-menu">
+            <span>Hello, {currentUser.username}</span>
+            <button onClick={handleLogout} className="logout-button">
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link to="/login" className="login-button">Login</Link>
+        )}
       </div>
     </nav>
   );
