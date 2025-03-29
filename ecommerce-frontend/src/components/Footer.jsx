@@ -7,9 +7,9 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
-          <h3>OrganicEats</h3>
-          <p>Healthy, sustainable, organic food delivered to your doorstep.</p>
-          <p>© 2023 OrganicEats. All rights reserved.</p>
+          <h3>OrganicFoods</h3>
+          <p>Healthy, sustainable, organic food.</p>
+          <p>© 2025 OrganicFoods.</p>
         </div>
         
         <div className="footer-section">
@@ -23,18 +23,6 @@ export default function Footer() {
         <div className="footer-section">
           <h3>Learn</h3>
           <Link to="/recipes">Recipes</Link>
-          <Link to="/blog">Blog</Link>
-          <Link to="/sustainability">Our Sustainability Efforts</Link>
-        </div>
-        
-        <div className="footer-section">
-          <h3>Connect</h3>
-          <Link to="/contact">Contact Us</Link>
-          <div className="social-links">
-            <a href="https://instagram.com" aria-label="Instagram">Instagram</a>
-            <a href="https://facebook.com" aria-label="Facebook">Facebook</a>
-            <a href="https://twitter.com" aria-label="Twitter">Twitter</a>
-          </div>
         </div>
       </div>
     </footer>

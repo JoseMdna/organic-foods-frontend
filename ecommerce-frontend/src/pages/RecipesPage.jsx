@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../api';
 
 export default function RecipesPage() {
-  const recipes = [
+  const { isAuthenticated } = useAuth();
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const hardcodedRecipes = [
     {
       id: 'summer-salad',
       title: 'Summer Vegetable Salad',
@@ -11,45 +17,55 @@ export default function RecipesPage() {
       dietary: ['Organic', 'Vegan', 'Gluten-Free']
     },
     {
-      id: 'berry-smoothie',
-      title: 'Berry Protein Smoothie',
-      image: 'https://images.unsplash.com/photo-1553530979-572530c22dbc?w=500&auto=format',
-      description: 'Start your day with antioxidants and energy',
-      dietary: ['Vegetarian', 'Antioxidant-Rich']
-    },
-    {
       id: 'quinoa-bowl',
       title: 'Organic Quinoa Bowl',
       image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format',
       description: 'Nutrient-packed complete meal with local vegetables',
       dietary: ['Organic', 'Protein-Rich', 'Vegan']
-    },
-    {
-      id: 'avocado-toast',
-      title: 'Avocado Toast with Microgreens',
-      image: 'https://images.unsplash.com/photo-1603046891744-1f76eb10aec1?w=500&auto=format',
-      description: 'Simple, nourishing breakfast with healthy fats',
-      dietary: ['Vegetarian', 'High-Protein', 'Healthy Fats']
-    },
-    {
-      id: 'roasted-veggies',
-      title: 'Roasted Root Vegetables',
-      image: 'https://images.unsplash.com/photo-1675257163553-7b49d2f4ce0f?w=500&auto=format',
-      description: 'Seasonal comfort food loaded with nutrients',
-      dietary: ['Organic', 'Vegan', 'Gluten-Free', 'Local']
-    },
-    {
-      id: 'lentil-soup',
-      title: 'Hearty Lentil Soup',
-      image: 'https://images.unsplash.com/photo-1599321989365-3d1af1d2be15?w=500&auto=format',
-      description: 'Protein-rich vegan soup perfect for cool days',
-      dietary: ['Organic', 'Vegan', 'High-Protein']
     }
   ];
   
+  useEffect(() => {
+    setLoading(true);
+    
+    api.get('/recipes/')
+      .then(res => {
+        const apiRecipes = res.data.map(recipe => ({
+          ...recipe,
+          id: recipe.id.toString()
+        }));
+        
+        setRecipes([...apiRecipes, ...hardcodedRecipes]);
+        setLoading(false);
+      })
+      .catch(err => {
+        setRecipes(hardcodedRecipes);
+        setLoading(false);
+      });
+  }, []);
+  
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>Loading recipes...</div>;
+  }
+  
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'var(--spacing-xl) var(--spacing-md)' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>Farm-to-Table Recipe Collection</h1>
+      <h1 style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>Delicious Community Recipe Collection</h1>
+      
+      {isAuthenticated && (
+        <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
+          <Link to="/recipes/create" style={{
+            display: 'inline-block',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            padding: 'var(--spacing-sm) var(--spacing-lg)',
+            borderRadius: 'var(--border-radius-sm)',
+            textDecoration: 'none'
+          }}>
+            Create New Recipe
+          </Link>
+        </div>
+      )}
       
       <div style={{ 
         display: 'grid',
@@ -80,7 +96,7 @@ export default function RecipesPage() {
               color: 'var(--color-text-light)',
               fontSize: '0.8rem'
             }}>
-              {recipe.dietary.map((diet, index) => (
+              {recipe.dietary && recipe.dietary.map((diet, index) => (
                 <React.Fragment key={diet}>
                   <span>{diet}</span>
                   {index < recipe.dietary.length - 1 && <span>•</span>}

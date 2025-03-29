@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,7 +24,7 @@ export default function RegisterPage() {
       return;
     }
     
-    const result = await register(username, password, email);
+    const result = await register(username, password);
     if (result.success) {
       navigate('/');
     } else {
@@ -53,19 +52,6 @@ export default function RegisterPage() {
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            style={{ width: '100%', padding: 'var(--spacing-sm)', borderRadius: 'var(--border-radius-sm)', border: '1px solid #ddd' }}
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: 'var(--spacing-xs)' }}>
-            Email (optional)
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             style={{ width: '100%', padding: 'var(--spacing-sm)', borderRadius: 'var(--border-radius-sm)', border: '1px solid #ddd' }}
           />
         </div>

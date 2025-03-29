@@ -1,10 +1,17 @@
-import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../api';
 
 export default function RecipeDetailPage() {
   const { recipeId } = useParams();
+  const { currentUser, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [recipe, setRecipe] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  const recipes = {
+  const hardcodedRecipes = {
     'summer-salad': {
       title: 'Summer Vegetable Salad',
       image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format',
@@ -96,10 +103,49 @@ export default function RecipeDetailPage() {
       dietary: ['Vegetarian', 'High-Protein', 'Healthy Fats']
     }
   };
+
+  useEffect(() => {
+    setLoading(true);
+    
+    if (!isNaN(parseInt(recipeId))) {
+      api.get(`/recipes/${recipeId}/`)
+        .then(res => {
+          setRecipe(res.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          if (hardcodedRecipes[recipeId]) {
+            setRecipe(hardcodedRecipes[recipeId]);
+          } else {
+            setError("Recipe not found");
+          }
+          setLoading(false);
+        });
+    } else if (hardcodedRecipes[recipeId]) {
+      setRecipe(hardcodedRecipes[recipeId]);
+      setLoading(false);
+    } else {
+      setError("Recipe not found");
+      setLoading(false);
+    }
+  }, [recipeId]);
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this recipe?')) {
+      try {
+        await api.delete(`/recipes/${recipeId}/`);
+        navigate('/recipes');
+      } catch (error) {
+        alert('Failed to delete recipe');
+      }
+    }
+  };
   
-  const recipe = recipes[recipeId];
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>Loading recipe...</div>;
+  }
   
-  if (!recipe) {
+  if (error || !recipe) {
     return (
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: 'var(--spacing-xl)', textAlign: 'center' }}>
         <h2>Recipe not found</h2>
@@ -115,7 +161,7 @@ export default function RecipeDetailPage() {
       </div>
     );
   }
-  
+
   return (
     <div style={{
       maxWidth: '800px',
@@ -123,6 +169,34 @@ export default function RecipeDetailPage() {
       padding: 'var(--spacing-xl) var(--spacing-md)'
     }}>
       <h1 style={{ marginBottom: 'var(--spacing-lg)' }}>{recipe.title}</h1>
+      
+      {isAuthenticated && currentUser && recipe.created_by_username === currentUser.username && (
+        <div style={{ 
+          display: 'flex', 
+          gap: 'var(--spacing-md)',
+          marginBottom: 'var(--spacing-md)'
+        }}>
+          <Link to={`/recipes/edit/${recipeId}`} style={{
+            backgroundColor: 'var(--color-secondary)',
+            color: 'white',
+            padding: 'var(--spacing-xs) var(--spacing-md)',
+            borderRadius: 'var(--border-radius-sm)',
+            textDecoration: 'none'
+          }}>
+            Edit Recipe
+          </Link>
+          <button onClick={handleDelete} style={{
+            backgroundColor: '#d9534f',
+            color: 'white',
+            border: 'none',
+            padding: 'var(--spacing-xs) var(--spacing-md)',
+            borderRadius: 'var(--border-radius-sm)',
+            cursor: 'pointer'
+          }}>
+            Delete Recipe
+          </button>
+        </div>
+      )}
       
       <div style={{ 
         height: '300px',
@@ -137,7 +211,7 @@ export default function RecipeDetailPage() {
         gap: 'var(--spacing-sm)',
         marginBottom: 'var(--spacing-md)'
       }}>
-        {recipe.dietary.map(diet => (
+        {recipe.dietary && recipe.dietary.map(diet => (
           <span key={diet} style={{
             display: 'inline-block',
             padding: 'var(--spacing-xs) var(--spacing-sm)',
@@ -150,8 +224,6 @@ export default function RecipeDetailPage() {
       </div>
       
       <p style={{ 
-        fontSize: '1.1rem',
-        lineHeight: '1.6',
         marginBottom: 'var(--spacing-lg)'
       }}>{recipe.description}</p>
       
@@ -164,7 +236,7 @@ export default function RecipeDetailPage() {
         <div>
           <h2 style={{ marginBottom: 'var(--spacing-md)' }}>Ingredients</h2>
           <ul style={{ listStylePosition: 'inside' }}>
-            {recipe.ingredients.map((ingredient, index) => (
+            {recipe.ingredients && recipe.ingredients.map((ingredient, index) => (
               <li key={index} style={{ marginBottom: 'var(--spacing-sm)' }}>{ingredient}</li>
             ))}
           </ul>
@@ -173,7 +245,7 @@ export default function RecipeDetailPage() {
         <div>
           <h2 style={{ marginBottom: 'var(--spacing-md)' }}>Instructions</h2>
           <ol style={{ listStylePosition: 'inside' }}>
-            {recipe.instructions.map((step, index) => (
+            {recipe.instructions && recipe.instructions.map((step, index) => (
               <li key={index} style={{ marginBottom: 'var(--spacing-sm)' }}>{step}</li>
             ))}
           </ol>
