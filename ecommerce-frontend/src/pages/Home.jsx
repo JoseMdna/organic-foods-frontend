@@ -235,32 +235,36 @@ export default function Home() {
       </section>
       
       <section className="recipes-preview">
-        <h2>Farm-to-Table Recipe Ideas</h2>
+        <h2>Tasty Recipe Ideas</h2>
         <div className="recipes-grid">
           <div className="recipe-card">
-            <img 
-              src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format" 
-              alt="Summer vegetable salad" 
-              style={{ height: '200px', width: '100%', objectFit: 'cover' }}
-            />
+          <div className="recipe-image" style={{ height: '200px', overflow: 'hidden' }}>
+  <img 
+    src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=800&fit=crop&q=80" 
+    alt="Summer vegetable salad" 
+    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+  />
+</div>
             <h3>Summer Vegetable Salad</h3>
             <p>Fresh, crisp, and perfect for warm days</p>
             <div className="recipe-nutrition">
-              <span>Organic</span> • <span>Vegan</span> • <span>Gluten-Free</span>
+              <span>Organic</span> <span className="divider">•</span> <span>Vegan</span> <span className="divider">•</span> <span>Gluten-Free</span>
             </div>
             <Link to="/recipes/summer-salad" className="recipe-link">View Recipe</Link>
           </div>
           
           <div className="recipe-card">
-            <img 
-              src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format" 
-              alt="Organic quinoa bowl" 
-              style={{ height: '200px', width: '100%', objectFit: 'cover' }}
-            />
+          <div className="recipe-image" style={{ height: '200px', overflow: 'hidden' }}>
+  <img 
+    src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=800&fit=crop&q=80" 
+    alt="Organic quinoa bowl" 
+    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+  />
+</div>
             <h3>Organic Quinoa Bowl</h3>
             <p>Nutrient-packed complete meal with local vegetables</p>
             <div className="recipe-nutrition">
-              <span>Organic</span> • <span>Protein-Rich</span> • <span>Vegan</span>
+              <span>Organic</span> <span className="divider">•</span> <span>Protein-Rich</span> <span className="divider">•</span> <span>Vegan</span>
             </div>
             <Link to="/recipes/quinoa-bowl" className="recipe-link">View Recipe</Link>
           </div>

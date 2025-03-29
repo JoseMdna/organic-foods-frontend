@@ -6,7 +6,7 @@ import api from '../api';
 export default function RecipeForm() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -230,6 +230,7 @@ export default function RecipeForm() {
                 type="text"
                 value={ingredient}
                 onChange={(e) => handleIngredientChange(index, e.target.value)}
+                required
                 style={{ flex: 1, padding: 'var(--spacing-sm)', borderRadius: 'var(--border-radius-sm)' }}
               />
               <button
@@ -272,6 +273,7 @@ export default function RecipeForm() {
               <textarea
                 value={instruction}
                 onChange={(e) => handleInstructionChange(index, e.target.value)}
+                required
                 style={{ 
                   flex: 1, 
                   padding: 'var(--spacing-sm)', 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../api';
@@ -11,7 +11,7 @@ export default function RecipeDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  const hardcodedRecipes = {
+  const hardcodedRecipes = useMemo(() => ({
     'summer-salad': {
       title: 'Summer Vegetable Salad',
       image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format',
@@ -35,26 +35,7 @@ export default function RecipeDetailPage() {
       ],
       dietary: ['Organic', 'Vegan', 'Gluten-Free']
     },
-    'berry-smoothie': {
-      title: 'Berry Protein Smoothie',
-      image: 'https://images.unsplash.com/photo-1553530979-572530c22dbc?w=500&auto=format',
-      description: 'Start your day with this antioxidant-rich smoothie packed with protein.',
-      ingredients: [
-        '1 cup mixed organic berries (strawberries, blueberries, raspberries)',
-        '1 banana',
-        '1 cup organic Greek yogurt',
-        '1 tbsp honey or maple syrup',
-        '1/2 cup almond milk',
-        '1 tbsp chia seeds'
-      ],
-      instructions: [
-        'Add all ingredients to a blender.',
-        'Blend until smooth and creamy.',
-        'Pour into a glass and top with additional berries if desired.',
-        'Enjoy immediately!'
-      ],
-      dietary: ['Vegetarian', 'Antioxidant-Rich']
-    },
+    
     'quinoa-bowl': {
       title: 'Organic Quinoa Bowl',
       image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format',
@@ -79,30 +60,8 @@ export default function RecipeDetailPage() {
         'Serve warm or cold.'
       ],
       dietary: ['Organic', 'Protein-Rich', 'Vegan']
-    },
-    'avocado-toast': {
-      title: 'Avocado Toast with Microgreens',
-      image: 'https://images.unsplash.com/photo-1603046891744-1f76eb10aec1?w=500&auto=format',
-      description: 'A simple, nutritious breakfast loaded with healthy fats and protein.',
-      ingredients: [
-        '2 slices organic whole grain bread',
-        '1 ripe avocado',
-        '1/4 cup microgreens',
-        '2 eggs (optional)',
-        'Red pepper flakes',
-        'Salt and pepper to taste',
-        'Lemon juice'
-      ],
-      instructions: [
-        'Toast the bread until golden brown.',
-        'Mash the avocado in a bowl with a fork, adding salt, pepper and a squeeze of lemon juice.',
-        'Spread the mashed avocado on the toast.',
-        'Top with microgreens and red pepper flakes.',
-        'For extra protein, add a poached or fried egg on top.'
-      ],
-      dietary: ['Vegetarian', 'High-Protein', 'Healthy Fats']
     }
-  };
+  }), []);
 
   useEffect(() => {
     setLoading(true);
@@ -128,7 +87,7 @@ export default function RecipeDetailPage() {
       setError("Recipe not found");
       setLoading(false);
     }
-  }, [recipeId]);
+  }, [recipeId, hardcodedRecipes]);
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this recipe?')) {

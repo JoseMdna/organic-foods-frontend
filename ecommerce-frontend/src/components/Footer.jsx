@@ -11,15 +11,7 @@ export default function Footer() {
           <p>Healthy, sustainable, organic food.</p>
           <p>© 2025 OrganicFoods.</p>
         </div>
-        
-        <div className="footer-section">
-          <h3>Shop</h3>
-          <Link to="/categories/fruits">Fruits</Link>
-          <Link to="/categories/vegetables">Vegetables</Link>
-          <Link to="/categories/dairy">Dairy</Link>
-          <Link to="/categories/grains">Grains</Link>
-        </div>
-        
+       
         <div className="footer-section">
           <h3>Learn</h3>
           <Link to="/recipes">Recipes</Link>
