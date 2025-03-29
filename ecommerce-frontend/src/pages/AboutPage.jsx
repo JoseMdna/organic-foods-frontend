@@ -74,7 +74,7 @@ export default function AboutPage() {
           borderRadius: 'var(--border-radius-sm)',
           fontWeight: '500',
           textDecoration: 'none'
-        }}>Explore Our Products</Link>
+        }}>Explore!</Link>
       </div>
     </div>
   );

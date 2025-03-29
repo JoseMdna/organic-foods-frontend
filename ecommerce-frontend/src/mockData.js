@@ -1,8 +1,6 @@
 export const fetchOrganicProducts = async () => {
   try {
-    const response = await fetch(
-      "https://world.openfoodfacts.org/cgi/search.pl?search_terms=organic&search_simple=1&action=process&json=1&page_size=30"
-    );
+    const response = await fetch("https://world.openfoodfacts.org/cgi/search.pl?action=process&tagtype_0=categories&tag_contains_0=contains&tag_0=organic&json=true&page_size=100");
     
     const data = await response.json();
     
@@ -66,7 +64,6 @@ export const fetchOrganicProducts = async () => {
       
     return organicProducts;
   } catch (error) {
-    console.error("Error fetching organic products:", error);
     return [];
   }
 };

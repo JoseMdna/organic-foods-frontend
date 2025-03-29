@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 import ProductCard from '../components/ProductCard';
 import './Home.css';
-import heroImage from './hero-bg.jpg'; 
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -54,7 +53,6 @@ export default function Home() {
         setLoading(false);
       })
       .catch(err => {
-        console.error("Error fetching products:", err);
         const curatedProducts = getCuratedProducts();
         setProducts(curatedProducts);
         setFilteredProducts(curatedProducts);
@@ -65,19 +63,12 @@ export default function Home() {
   useEffect(() => {
     if (products.length === 0) return;
     
-    console.log('Applying filters with:', {
-      categoryFilter: activeFilters.category,
-      dietaryFilters: activeFilters.dietary,
-      searchQuery: searchQuery
-    });
-    
     let result = [...products];
     
     if (activeFilters.category !== 'all') {
       result = result.filter(product => 
         product.category === activeFilters.category
       );
-      console.log(`After category filter (${activeFilters.category}):`, result.length);
     }
     
     if (activeFilters.dietary.length > 0) {
@@ -86,7 +77,6 @@ export default function Home() {
           return product[diet] === true;
         })
       );
-      console.log('After dietary filters:', result.length);
     }
     
     if (searchQuery) {
@@ -97,15 +87,12 @@ export default function Home() {
         
         return productName.includes(query) || productDesc.includes(query);
       });
-      console.log('After search query:', result.length);
     }
     
-    console.log('Final filtered products:', result.length);
     setFilteredProducts(result);
   }, [activeFilters, searchQuery, products]);
 
   const handleCategoryChange = (category) => {
-    console.log('Category changed to:', category);
     setActiveFilters({...activeFilters, category});
   };
 
@@ -114,21 +101,19 @@ export default function Home() {
       ? activeFilters.dietary.filter(d => d !== diet)
       : [...activeFilters.dietary, diet];
     
-    console.log('Dietary filters changed to:', newDietary);
     setActiveFilters({...activeFilters, dietary: newDietary});
   };
 
   const handleSearch = (e) => {
-    console.log('Search query changed to:', e.target.value);
     setSearchQuery(e.target.value);
   };
 
   if (loading) return <div className="loading">Loading products...</div>;
-
+  
   return (
     <div className="home-container">
       <section className="hero" style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${heroImage})`, 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${process.env.PUBLIC_URL}/images/hero-bg.jpg)`, 
         backgroundSize: 'cover', 
         backgroundPosition: 'center' 
       }}>
@@ -222,7 +207,7 @@ export default function Home() {
       </section>
       
       <section className="featured">
-        <h2>Featured Products</h2>
+        <h2>Featured Foods</h2>
         <div className="product-grid">
           {filteredProducts.length > 0 ? (
             filteredProducts.map(product => (

@@ -13,7 +13,9 @@ export const AuthProvider = ({ children }) => {
         const response = await api.get('/auth/user/');
         setCurrentUser(response.data);
       } catch (error) {
-        console.log('User not logged in');
+        if (error.response && error.response.status !== 403) {
+          console.error("Error checking authentication status:", error);
+        }
       } finally {
         setLoading(false);
       }
@@ -37,7 +39,6 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(response.data.user);
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
       return {
         success: false,
         error: error.response?.data?.error || 'Login failed'
@@ -51,7 +52,6 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(response.data.user);
       return { success: true };
     } catch (error) {
-      console.error('Registration error:', error);
       return {
         success: false,
         error: error.response?.data?.error || 'Registration failed'
@@ -74,7 +74,6 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(null);
       return { success: true };
     } catch (error) {
-      console.error('Logout error:', error);
       setCurrentUser(null);
       return { success: true };
     }
