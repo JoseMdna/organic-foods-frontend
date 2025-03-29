@@ -1,6 +1,6 @@
 import { getCuratedProducts } from '../mockData';
-import { Link } from 'react-router-dom';
-import React, { useEffect, useState, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import api from '../api';
 import ProductCard from '../components/ProductCard';
 import './Home.css';
@@ -15,29 +15,46 @@ export default function Home() {
     dietary: [],
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const search = params.get('search');
+    if (search) {
+      setSearchQuery(search);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     setLoading(true);
+    
     api.get('/products/')
       .then(res => {
-        const normalizedProducts = res.data.map(product => ({
-          ...product,
-          id: product.id || Math.random().toString(),
-          name: product.name || product.product_name || "Unnamed Product",
-          description: product.description || product.short_description || "",
-          price: product.price || 0,
-          image_url: product.image_url || product.image || "",
-          organic: Boolean(product.organic),
-          vegan: Boolean(product.vegan),
-          glutenFree: Boolean(product.glutenFree),
-          local: Boolean(product.local)
-        }));
-        
-        setProducts(normalizedProducts);
-        setFilteredProducts(normalizedProducts);
+        if (res.data && res.data.length > 0) {
+          const normalizedProducts = res.data.map(product => ({
+            ...product,
+            id: product.id || Math.random().toString(),
+            name: product.name || product.product_name || "Unnamed Product",
+            description: product.description || product.short_description || "",
+            price: product.price || 0,
+            image_url: product.image_url || product.image || "",
+            organic: Boolean(product.organic),
+            vegan: Boolean(product.vegan),
+            glutenFree: Boolean(product.glutenFree),
+            local: Boolean(product.local)
+          }));
+          
+          setProducts(normalizedProducts);
+          setFilteredProducts(normalizedProducts);
+        } else {
+          const curatedProducts = getCuratedProducts();
+          setProducts(curatedProducts);
+          setFilteredProducts(curatedProducts);
+        }
         setLoading(false);
       })
       .catch(err => {
+        console.error("Error fetching products:", err);
         const curatedProducts = getCuratedProducts();
         setProducts(curatedProducts);
         setFilteredProducts(curatedProducts);
@@ -45,48 +62,50 @@ export default function Home() {
       });
   }, []);
   
-  const applyFilters = useCallback(() => {
+  useEffect(() => {
+    if (products.length === 0) return;
+    
+    console.log('Applying filters with:', {
+      categoryFilter: activeFilters.category,
+      dietaryFilters: activeFilters.dietary,
+      searchQuery: searchQuery
+    });
+    
     let result = [...products];
     
     if (activeFilters.category !== 'all') {
       result = result.filter(product => 
-        product.category === activeFilters.category || 
-        (product.category_id && product.category_id.toString() === activeFilters.category)
+        product.category === activeFilters.category
       );
+      console.log(`After category filter (${activeFilters.category}):`, result.length);
     }
     
     if (activeFilters.dietary.length > 0) {
       result = result.filter(product => 
         activeFilters.dietary.every(diet => {
-          return product[diet] === true || 
-                 product[diet] === "True" || 
-                 product[diet] === "true" || 
-                 product[diet] === 1;
+          return product[diet] === true;
         })
       );
+      console.log('After dietary filters:', result.length);
     }
     
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(product => {
-        const productName = product.name || product.product_name || "";
-        const productDesc = product.description || product.short_description || "";
+        const productName = (product.name || "").toLowerCase();
+        const productDesc = (product.description || "").toLowerCase();
         
-        const nameMatch = productName.toLowerCase().includes(query);
-        const descMatch = productDesc.toLowerCase().includes(query);
-        
-        return nameMatch || descMatch;
+        return productName.includes(query) || productDesc.includes(query);
       });
+      console.log('After search query:', result.length);
     }
     
+    console.log('Final filtered products:', result.length);
     setFilteredProducts(result);
   }, [activeFilters, searchQuery, products]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
-
   const handleCategoryChange = (category) => {
+    console.log('Category changed to:', category);
     setActiveFilters({...activeFilters, category});
   };
 
@@ -95,7 +114,13 @@ export default function Home() {
       ? activeFilters.dietary.filter(d => d !== diet)
       : [...activeFilters.dietary, diet];
     
+    console.log('Dietary filters changed to:', newDietary);
     setActiveFilters({...activeFilters, dietary: newDietary});
+  };
+
+  const handleSearch = (e) => {
+    console.log('Search query changed to:', e.target.value);
+    setSearchQuery(e.target.value);
   };
 
   if (loading) return <div className="loading">Loading products...</div>;
@@ -107,7 +132,7 @@ export default function Home() {
         backgroundSize: 'cover', 
         backgroundPosition: 'center' 
       }}>
-        <h1 style={{ color: '#ffffff' }}>Fresh Organic Food Delivered to Your Door</h1>
+        <h1 style={{ color: '#ffffff' }}>Fresh Organic Food.</h1>
         <p style={{ color: '#ffffff' }}>Locally sourced, sustainably grown, ethically harvested</p>
       </section>
       
@@ -117,7 +142,7 @@ export default function Home() {
             type="text" 
             placeholder="Search products..." 
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearch}
           />
         </div>
         
@@ -151,6 +176,12 @@ export default function Home() {
             onClick={() => handleCategoryChange('grains')}
           >
             Grains
+          </button>
+          <button 
+            className={activeFilters.category === 'meat' ? 'active' : ''} 
+            onClick={() => handleCategoryChange('meat')}
+          >
+            Meat
           </button>
         </div>
         
@@ -198,7 +229,7 @@ export default function Home() {
               <ProductCard key={product.id} product={product} />
             ))
           ) : (
-            <p className="no-results">No products match your filters.</p>
+            <p className="no-results">No products match your filters. Try adjusting your search criteria.</p>
           )}
         </div>
       </section>

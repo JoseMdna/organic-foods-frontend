@@ -5,7 +5,6 @@ import RegisterPage from './pages/RegisterPage';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
-import CartPage from './pages/CartPage';
 import RecipesPage from './pages/RecipesPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
 import RecipeForm from './pages/RecipeForm';
@@ -13,12 +12,10 @@ import AboutPage from './pages/AboutPage';
 import Navbar from './components/Navbar';
 import PlaceholderPage from './components/PlaceholderPage';
 import Footer from './components/Footer';
-import { CartProvider } from './contexts/CartContext';
 
 export default function App() {
   return (
    <AuthProvider>
-    <CartProvider>
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -26,7 +23,6 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} /> 
           <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<CartPage />} />
           <Route path="/recipes" element={<RecipesPage />} />
           <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
           <Route path="/categories" element={<PlaceholderPage title="Product Categories" />} />
@@ -37,7 +33,6 @@ export default function App() {
         </Routes>
         <Footer />
       </BrowserRouter>
-    </CartProvider>
   </AuthProvider>
   );
 }

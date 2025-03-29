@@ -3,14 +3,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { getCuratedProducts } from '../mockData';
 import { useParams } from 'react-router-dom';
 import api from '../api';
-import { useCart } from '../contexts/CartContext';
 import './ProductDetail.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart();
   const { currentUser, isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -21,7 +18,6 @@ export default function ProductDetail() {
         setProduct(res.data);
       })
       .catch(err => {
-        console.error('Error fetching product:', err);
         const curatedProducts = getCuratedProducts();
         const foundProduct = curatedProducts.find(p => p.id === parseInt(id));
         
@@ -32,12 +28,6 @@ export default function ProductDetail() {
         }
       });
   }, [id]);
-
-  const handleAddToCart = () => {
-    if (product) {
-      addToCart(product, quantity);
-    }
-  };
 
   if (!product) return <div className="loading">Loading...</div>;
 
@@ -54,6 +44,7 @@ export default function ProductDetail() {
             {product.organic && <span className="badge organic">Organic</span>}
             {product.local && <span className="badge local">Locally Sourced</span>}
             {product.vegan && <span className="badge vegan">Vegan</span>}
+            {product.glutenFree && <span className="badge gluten-free">Gluten-Free</span>}
           </div>
           
           <p className="product-price">${product.price}</p>
@@ -95,37 +86,49 @@ export default function ProductDetail() {
           )}
           
           <div className="product-actions">
-            <div className="quantity-selector">
-              <button onClick={() => quantity > 1 && setQuantity(quantity - 1)}>-</button>
-              <span>{quantity}</span>
-              <button onClick={() => setQuantity(quantity + 1)}>+</button>
+            <div className="supplier-info" style={{
+              backgroundColor: 'var(--color-background)',
+              padding: 'var(--spacing-md)',
+              borderRadius: 'var(--border-radius-sm)',
+              marginTop: 'var(--spacing-md)'
+            }}>
+              <h3>Available From</h3>
+              <div style={{ marginTop: 'var(--spacing-sm)' }}>
+                <p><strong>{product.supplierName || "Local Organic Farms"}</strong></p>
+                <p>{product.supplierLocation || "Within 50 miles of your location"}</p>
+                <p><strong>Contact:</strong> {product.supplierContact || "info@localorganicfarms.com"}</p>
+                <p><strong>Phone:</strong> {product.supplierPhone || "(555) 123-4567"}</p>
+              </div>
             </div>
-            <button className="add-to-cart" onClick={handleAddToCart}>Add to Cart</button>
           </div>
           
           <div className="nutritional-info">
-            <h3>Nutritional Information</h3>
+            <h3>Nutritional Information (per 100g)</h3>
             <div className="nutrition-grid">
-              <div className="nutrition-item">
-                <span>Calories</span>
-                <span>{product.nutrition?.calories || 'N/A'} kcal</span>
-              </div>
-              <div className="nutrition-item">
-                <span>Protein</span>
-                <span>{product.nutrition?.protein || 'N/A'} g</span>
-              </div>
-              <div className="nutrition-item">
-                <span>Carbs</span>
-                <span>{product.nutrition?.carbs || 'N/A'} g</span>
-              </div>
-              <div className="nutrition-item">
-                <span>Fat</span>
-                <span>{product.nutrition?.fat || 'N/A'} g</span>
-              </div>
-              <div className="nutrition-item">
-                <span>Fiber</span>
-                <span>{product.nutrition?.fiber || 'N/A'} g</span>
-              </div>
+              {product.nutrition && (
+                <>
+                  <div className="nutrition-item">
+                    <span>Calories</span>
+                    <span>{product.nutrition.calories || '0'} kcal</span>
+                  </div>
+                  <div className="nutrition-item">
+                    <span>Protein</span>
+                    <span>{product.nutrition.protein || '0'} g</span>
+                  </div>
+                  <div className="nutrition-item">
+                    <span>Carbs</span>
+                    <span>{product.nutrition.carbs || '0'} g</span>
+                  </div>
+                  <div className="nutrition-item">
+                    <span>Fat</span>
+                    <span>{product.nutrition.fat || '0'} g</span>
+                  </div>
+                  <div className="nutrition-item">
+                    <span>Fiber</span>
+                    <span>{product.nutrition.fiber || '0'} g</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -1,15 +1,20 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { cart } = useCart();
   const { currentUser, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   
   const handleLogout = async () => {
     await logout();
+  };
+  
+  const handleSearch = (e) => {
+    if (e.key === 'Enter') {
+      navigate('/?search=' + encodeURIComponent(e.target.value));
+    }
   };
   
   return (
@@ -25,10 +30,12 @@ export default function Navbar() {
       </div>
       <div className="nav-actions">
         <div className="search-bar">
-          <input type="text" placeholder="Search for organic products..." />
+          <input 
+            type="text" 
+            placeholder="Search for organic products..." 
+            onKeyDown={handleSearch}
+          />
         </div>
-        
-        <Link to="/cart" className="cart-icon">Cart ({cart.totalItems})</Link>
         
         {isAuthenticated ? (
           <div className="user-menu">

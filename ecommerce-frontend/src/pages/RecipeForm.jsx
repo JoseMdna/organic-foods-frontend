@@ -30,7 +30,6 @@ export default function RecipeForm() {
           setIsLoading(false);
         })
         .catch(err => {
-          console.error('Error fetching recipe:', err);
           setError('Failed to load recipe');
           setIsLoading(false);
         });
@@ -125,7 +124,6 @@ export default function RecipeForm() {
         navigate(`/recipes/${response.data.id}`);
       }
     } catch (err) {
-      console.error('Error saving recipe:', err);
       setError('Failed to save recipe. Please try again.');
       setIsLoading(false);
     }
