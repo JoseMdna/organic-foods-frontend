@@ -211,6 +211,8 @@ export default function RecipeForm() {
               <label key={diet} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)' }}>
                 <input
                   type="checkbox"
+                  name={`diet-${diet.toLowerCase()}`}
+                  id={`diet-${diet.toLowerCase()}`}
                   checked={recipe.dietary.includes(diet)}
                   onChange={() => handleDietaryChange(diet)}
                 />
@@ -221,20 +223,25 @@ export default function RecipeForm() {
         </div>
         
         <div>
-          <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)' }}>
+          <h3 style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontSize: '1rem', fontWeight: '500' }}>
             Ingredients
-          </label>
+          </h3>
           {recipe.ingredients.map((ingredient, index) => (
             <div key={index} style={{ display: 'flex', marginBottom: 'var(--spacing-sm)' }}>
               <input
                 type="text"
+                id={`ingredient-${index}`}
+                name={`ingredient-${index}`}
                 value={ingredient}
                 onChange={(e) => handleIngredientChange(index, e.target.value)}
                 required
                 style={{ flex: 1, padding: 'var(--spacing-sm)', borderRadius: 'var(--border-radius-sm)' }}
+                aria-label={`Ingredient ${index + 1}`}
               />
               <button
                 type="button"
+                id={`remove-ingredient-${index}`}
+                name={`remove-ingredient-${index}`}
                 onClick={() => removeIngredient(index)}
                 style={{ 
                   marginLeft: 'var(--spacing-sm)',
@@ -244,6 +251,7 @@ export default function RecipeForm() {
                   borderRadius: 'var(--border-radius-sm)',
                   padding: '0 var(--spacing-sm)'
                 }}
+                aria-label={`Remove ingredient ${index + 1}`}
               >
                 ✕
               </button>
@@ -251,6 +259,8 @@ export default function RecipeForm() {
           ))}
           <button
             type="button"
+            id="add-ingredient"
+            name="add-ingredient"
             onClick={addIngredient}
             style={{ 
               backgroundColor: 'var(--color-background)',
@@ -265,12 +275,14 @@ export default function RecipeForm() {
         </div>
         
         <div>
-          <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)' }}>
+          <h3 style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontSize: '1rem', fontWeight: '500' }}>
             Instructions
-          </label>
+          </h3>
           {recipe.instructions.map((instruction, index) => (
             <div key={index} style={{ display: 'flex', marginBottom: 'var(--spacing-sm)' }}>
               <textarea
+                id={`instruction-${index}`}
+                name={`instruction-${index}`}
                 value={instruction}
                 onChange={(e) => handleInstructionChange(index, e.target.value)}
                 required
@@ -280,9 +292,12 @@ export default function RecipeForm() {
                   borderRadius: 'var(--border-radius-sm)',
                   minHeight: '60px'
                 }}
+                aria-label={`Instruction ${index + 1}`}
               />
               <button
                 type="button"
+                id={`remove-instruction-${index}`}
+                name={`remove-instruction-${index}`}
                 onClick={() => removeInstruction(index)}
                 style={{ 
                   marginLeft: 'var(--spacing-sm)',
@@ -293,6 +308,7 @@ export default function RecipeForm() {
                   padding: '0 var(--spacing-sm)',
                   alignSelf: 'flex-start'
                 }}
+                aria-label={`Remove instruction ${index + 1}`}
               >
                 ✕
               </button>
@@ -300,6 +316,8 @@ export default function RecipeForm() {
           ))}
           <button
             type="button"
+            id="add-instruction"
+            name="add-instruction"
             onClick={addInstruction}
             style={{ 
               backgroundColor: 'var(--color-background)',
@@ -315,6 +333,8 @@ export default function RecipeForm() {
         
         <button
           type="submit"
+          id="save-recipe"
+          name="save-recipe"
           disabled={isLoading}
           style={{
             backgroundColor: 'var(--color-primary)',

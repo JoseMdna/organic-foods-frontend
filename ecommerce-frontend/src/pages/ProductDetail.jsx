@@ -1,36 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getCuratedProducts } from '../mockData';
-import { useParams } from 'react-router-dom';
-import api from '../api';
+import { useParams, Link } from 'react-router-dom';
 import './ProductDetail.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { currentUser, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    setProduct(null);
+    setLoading(true);
     window.scrollTo(0, 0);
     
-    api.get(`products/${id}/`)
-      .then(res => {
-        setProduct(res.data);
-      })
-      .catch(err => {
-        const curatedProducts = getCuratedProducts();
-        const foundProduct = curatedProducts.find(p => p.id === parseInt(id));
-        
-        if (foundProduct) {
-          setProduct(foundProduct);
-        } else {
-          setProduct(curatedProducts[0]);
-        }
-      });
+    const curatedProducts = getCuratedProducts();
+    
+    const foundProduct = curatedProducts.find(p => 
+      p.id.toString() === id || p.id === parseInt(id)
+    );
+    
+    if (foundProduct) {
+      setProduct(foundProduct);
+    } else {
+      setProduct(curatedProducts[0]);
+    }
+    
+    setLoading(false);
   }, [id]);
 
-  if (!product) return <div className="loading">Loading...</div>;
+  if (loading) return <div className="loading">Loading product details...</div>;
+  if (!product) return <div className="loading">Product not found</div>;
 
   const getCategoryUnit = (category) => {
     switch(category) {
@@ -166,14 +166,14 @@ export default function ProductDetail() {
         </div>
         
         <div className="nutrition-card">
-  <h3>Nutritional Information <span className="per-serving">(per 100g serving)</span></h3>
-  <div className="nutrition-grid">
-    {product.nutrition && (
-      <>
-        <div className="nutrition-item">
-          <span>Calories</span>
-          <span>{product.nutrition.calories || '0'} kcal</span>
-        </div>
+          <h3>Nutritional Information <span className="per-serving">(per 100g serving)</span></h3>
+          <div className="nutrition-grid">
+            {product.nutrition && (
+              <>
+                <div className="nutrition-item">
+                  <span>Calories</span>
+                  <span>{product.nutrition.calories || '0'} kcal</span>
+                </div>
                 <div className="nutrition-item">
                   <span>Protein</span>
                   <span>{product.nutrition.protein || '0'} g</span>
@@ -230,11 +230,30 @@ export default function ProductDetail() {
       </div>
       
       <div className="storage-tips-container">
-      <div className="storage-tips-card">
-        <h3>Storage Tips</h3>
-        <p>{product.storageTips || 'For best quality, store in refrigerator and consume within a few days of purchase.'}</p>
+        <div className="storage-tips-card">
+          <h3>Storage Tips</h3>
+          <p>{product.storageTips || 'For best quality, store in refrigerator and consume within a few days of purchase.'}</p>
+        </div>
+      </div>
+      
+      <div style={{ marginTop: "var(--spacing-xl)", textAlign: "center" }}>
+        <Link 
+          to="/"
+          style={{
+            display: "inline-block",
+            padding: "var(--spacing-sm) var(--spacing-lg)",
+            backgroundColor: "var(--color-primary)",
+            color: "var(--color-white)",
+            borderRadius: "var(--border-radius-sm)",
+            textDecoration: "none",
+            transition: "background-color 0.2s ease"
+          }}
+          onMouseOver={(e) => e.target.style.backgroundColor = "var(--color-secondary)"}
+          onMouseOut={(e) => e.target.style.backgroundColor = "var(--color-primary)"}
+        >
+          Back to Products
+        </Link>
       </div>
     </div>
-  </div>
   );
 }

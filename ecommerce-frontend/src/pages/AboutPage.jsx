@@ -50,10 +50,9 @@ export default function AboutPage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
           gap: 'var(--spacing-xl)'
         }}>
-
           <div>
             <h3 style={{ color: 'var(--color-secondary)', marginBottom: 'var(--spacing-sm)' }}>Supporting Regenerative Agriculture</h3>
-            <p>We partner with farmers who practice regenerative techniques that improve soil health, increase biodiversity, and capture carbon.</p>
+            <p style={{ lineHeight: '1.6' }}>We partner with farmers who practice regenerative techniques that improve soil health, increase biodiversity, and capture carbon.</p>
           </div>
         </div>
       </div>
@@ -73,8 +72,18 @@ export default function AboutPage() {
           color: 'var(--color-primary)',
           borderRadius: 'var(--border-radius-sm)',
           fontWeight: '500',
-          textDecoration: 'none'
-        }}>Explore!</Link>
+          textDecoration: 'none',
+          transition: "all 0.2s ease"
+        }}
+        onMouseOver={(e) => {
+          e.target.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
+          e.target.style.transform = "translateY(-2px)";
+        }}
+        onMouseOut={(e) => {
+          e.target.style.backgroundColor = "var(--color-white)";
+          e.target.style.transform = "translateY(0)";
+        }}
+        >Explore!</Link>
       </div>
     </div>
   );

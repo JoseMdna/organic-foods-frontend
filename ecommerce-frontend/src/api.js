@@ -1,21 +1,36 @@
-import axios from 'axios';
+import { getCuratedProducts } from './mockData';
 
-const api = axios.create({
-  baseURL: 'http://localhost:8000/api/',
-  withCredentials: true
-});
-
-api.interceptors.request.use(function (config) {
-  const csrfToken = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1];
-    
-  if (csrfToken && config.method !== 'get') {
-    config.headers['X-CSRFToken'] = csrfToken;
-  }
+const api = {
+  get: (endpoint) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (endpoint.startsWith('/products')) {
+          resolve({ data: getCuratedProducts() });
+        } else if (endpoint.startsWith('/recipes')) {
+          resolve({ data: [] });
+        } else if (endpoint.startsWith('/auth/user')) {
+          resolve({ data: null });
+        }
+      }, 300);
+    });
+  },
   
-  return config;
-});
+  post: (endpoint, data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (endpoint === '/auth/login/') {
+          resolve({ data: { user: { username: data.username } } });
+        } else if (endpoint === '/auth/register/') {
+          resolve({ data: { user: { username: data.username } } });
+        } else if (endpoint === '/recipes/') {
+          resolve({ data: { id: 'new-recipe-' + Date.now() } });
+        }
+      }, 300);
+    });
+  },
+  
+  put: () => Promise.resolve({ data: {} }),
+  delete: () => Promise.resolve({}),
+};
 
 export default api;

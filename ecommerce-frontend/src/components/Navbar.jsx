@@ -28,27 +28,29 @@ export default function Navbar() {
         <Link to="/about">About</Link>
       </div>
       <div className="nav-actions">
-  <div className="search-bar">
-    <input 
-      type="text" 
-      placeholder="Search for organic products..." 
-      onKeyDown={handleSearch}
-    />
-  </div>
-  
-  <div className="nav-auth-container">
-    {isAuthenticated ? (
-      <div className="user-menu">
-        <span>{currentUser.username}</span>
-        <button onClick={handleLogout} className="auth-button logout-button">
-          Logout
-        </button>
+        <div className="search-bar">
+          <input 
+            type="text"
+            id="nav-search"
+            name="nav-search" 
+            placeholder="Search..." 
+            onKeyDown={handleSearch}
+          />
+        </div>
+    
+        <div className="nav-auth-container">
+          {isAuthenticated ? (
+            <div className="user-menu">
+              <span>{currentUser.username}</span>
+              <button onClick={handleLogout} className="auth-button logout-button">
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" className="auth-button login-button">Login</Link>
+          )}
+        </div>
       </div>
-    ) : (
-      <Link to="/login" className="auth-button login-button">Login</Link>
-    )}
-  </div>
-</div>
     </nav>
   );
 }

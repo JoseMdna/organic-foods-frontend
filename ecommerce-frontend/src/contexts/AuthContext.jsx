@@ -13,14 +13,12 @@ export const AuthProvider = ({ children }) => {
         const response = await api.get('/auth/user/');
         setCurrentUser(response.data);
       } catch (error) {
-        if (error.response && error.response.status !== 403) {
-          console.error("Error checking authentication status:", error);
-        }
+        setCurrentUser(null);
       } finally {
         setLoading(false);
       }
     };
-
+  
     checkUserStatus();
   }, []);
 

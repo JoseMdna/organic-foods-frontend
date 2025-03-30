@@ -1,5 +1,4 @@
 :root {
-  /* Color palette */
   --color-primary: #2E6B46;
   --color-secondary: #4A8E65;
   --color-accent: #6B4C35;
@@ -11,7 +10,6 @@
   --color-badge-local: #6B4C35;
   --color-badge-vegan: #4A8E65;
   
-  /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -19,7 +17,6 @@
   --spacing-xl: 2rem;
   --spacing-xxl: 3rem;
   
-  /* Border radius */
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
@@ -56,7 +53,6 @@ button {
   font-family: inherit;
 }
 
-/* Utility classes */
 .container {
   max-width: 1200px;
   margin: 0 auto;

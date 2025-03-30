@@ -10,5 +10,5 @@ const reportWebVitals = onPerfEntry => {
   }
 };
 
-// reportWebVitals();
+export default reportWebVitals;
 

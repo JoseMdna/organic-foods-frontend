@@ -1,7 +1,6 @@
 import { getCuratedProducts } from '../mockData';
 import { Link, useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import api from '../api';
 import ProductCard from '../components/ProductCard';
 import './Home.css';
 
@@ -26,38 +25,10 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true);
-    
-    api.get('/products/')
-      .then(res => {
-        if (res.data && res.data.length > 0) {
-          const normalizedProducts = res.data.map(product => ({
-            ...product,
-            id: product.id || Math.random().toString(),
-            name: product.name || product.product_name || "Unnamed Product",
-            description: product.description || product.short_description || "",
-            price: product.price || 0,
-            image_url: product.image_url || product.image || "",
-            organic: Boolean(product.organic),
-            vegan: Boolean(product.vegan),
-            glutenFree: Boolean(product.glutenFree),
-            local: Boolean(product.local)
-          }));
-          
-          setProducts(normalizedProducts);
-          setFilteredProducts(normalizedProducts);
-        } else {
-          const curatedProducts = getCuratedProducts();
-          setProducts(curatedProducts);
-          setFilteredProducts(curatedProducts);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        const curatedProducts = getCuratedProducts();
-        setProducts(curatedProducts);
-        setFilteredProducts(curatedProducts);
-        setLoading(false);
-      });
+    const curatedProducts = getCuratedProducts();
+    setProducts(curatedProducts);
+    setFilteredProducts(curatedProducts);
+    setLoading(false);
   }, []);
   
   useEffect(() => {
@@ -125,6 +96,8 @@ export default function Home() {
         <div className="search">
           <input 
             type="text" 
+            id="product-search"
+            name="product-search"
             placeholder="Search products..." 
             value={searchQuery}
             onChange={handleSearch}
@@ -133,36 +106,48 @@ export default function Home() {
         
         <div className="category-filters">
           <button 
+            id="filter-all"
+            name="filter-all"
             className={activeFilters.category === 'all' ? 'active' : ''} 
             onClick={() => handleCategoryChange('all')}
           >
             All
           </button>
           <button 
+            id="filter-vegetables"
+            name="filter-vegetables"
             className={activeFilters.category === 'vegetables' ? 'active' : ''} 
             onClick={() => handleCategoryChange('vegetables')}
           >
             Vegetables
           </button>
           <button 
+            id="filter-fruits"
+            name="filter-fruits"
             className={activeFilters.category === 'fruits' ? 'active' : ''} 
             onClick={() => handleCategoryChange('fruits')}
           >
             Fruits
           </button>
           <button 
+            id="filter-dairy"
+            name="filter-dairy"
             className={activeFilters.category === 'dairy' ? 'active' : ''} 
             onClick={() => handleCategoryChange('dairy')}
           >
             Dairy
           </button>
           <button 
+            id="filter-grains"
+            name="filter-grains"
             className={activeFilters.category === 'grains' ? 'active' : ''} 
             onClick={() => handleCategoryChange('grains')}
           >
             Grains
           </button>
           <button 
+            id="filter-meat"
+            name="filter-meat"
             className={activeFilters.category === 'meat' ? 'active' : ''} 
             onClick={() => handleCategoryChange('meat')}
           >
@@ -174,6 +159,8 @@ export default function Home() {
           <label>
             <input 
               type="checkbox" 
+              id="filter-organic"
+              name="filter-organic"
               checked={activeFilters.dietary.includes('organic')}
               onChange={() => handleDietaryChange('organic')}
             />
@@ -182,6 +169,8 @@ export default function Home() {
           <label>
             <input 
               type="checkbox" 
+              id="filter-vegan"
+              name="filter-vegan"
               checked={activeFilters.dietary.includes('vegan')}
               onChange={() => handleDietaryChange('vegan')}
             />
@@ -190,6 +179,8 @@ export default function Home() {
           <label>
             <input 
               type="checkbox" 
+              id="filter-gluten-free"
+              name="filter-gluten-free"
               checked={activeFilters.dietary.includes('glutenFree')}
               onChange={() => handleDietaryChange('glutenFree')}
             />
@@ -198,6 +189,8 @@ export default function Home() {
           <label>
             <input 
               type="checkbox" 
+              id="filter-local"
+              name="filter-local"
               checked={activeFilters.dietary.includes('local')}
               onChange={() => handleDietaryChange('local')}
             />
