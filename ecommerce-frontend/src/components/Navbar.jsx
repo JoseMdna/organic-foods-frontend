@@ -1,19 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
 export default function Navbar() {
   const { currentUser, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchValue, setSearchValue] = useState('');
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const search = params.get('search') || '';
+    setSearchValue(search);
+  }, [location.search]);
   
   const handleLogout = async () => {
     await logout();
   };
   
-  const handleSearch = (e) => {
+  const handleSearchChange = (e) => {
+    setSearchValue(e.target.value);
+  };
+  
+  const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter') {
-      navigate('/?search=' + encodeURIComponent(e.target.value));
+      const params = new URLSearchParams();
+      if (searchValue.trim()) {
+        params.set('search', searchValue.trim());
+      }
+      
+      navigate(`/?${params.toString()}`);
     }
   };
   
@@ -34,7 +51,9 @@ export default function Navbar() {
             id="nav-search"
             name="nav-search" 
             placeholder="Search..." 
-            onKeyDown={handleSearch}
+            value={searchValue}
+            onChange={handleSearchChange}
+            onKeyDown={handleSearchKeyDown}
           />
         </div>
     

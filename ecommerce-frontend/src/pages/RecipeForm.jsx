@@ -24,9 +24,11 @@ export default function RecipeForm() {
   useEffect(() => {
     if (isEditMode) {
       setIsLoading(true);
-      api.get(`/recipes/${recipeId}/`)
+      api.recipes.getById(recipeId)
         .then(res => {
-          setRecipe(res.data);
+          if (res.data) {
+            setRecipe(res.data);
+          }
           setIsLoading(false);
         })
         .catch(err => {
@@ -35,7 +37,7 @@ export default function RecipeForm() {
         });
     }
   }, [recipeId, isEditMode]);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setRecipe(prev => ({
@@ -69,6 +71,8 @@ export default function RecipeForm() {
   };
   
   const removeIngredient = (index) => {
+    if (recipe.ingredients.length <= 1) return;
+    
     setRecipe(prev => {
       const newIngredients = [...prev.ingredients];
       newIngredients.splice(index, 1);
@@ -92,6 +96,8 @@ export default function RecipeForm() {
   };
   
   const removeInstruction = (index) => {
+    if (recipe.instructions.length <= 1) return;
+    
     setRecipe(prev => {
       const newInstructions = [...prev.instructions];
       newInstructions.splice(index, 1);
@@ -108,8 +114,33 @@ export default function RecipeForm() {
     }
     
     const recipeToSubmit = { ...recipe };
+    
+    if (isEditMode) {
+      delete recipeToSubmit.created_by;
+      delete recipeToSubmit.created_by_username;
+      delete recipeToSubmit.created_at;
+      delete recipeToSubmit.updated_at;
+      delete recipeToSubmit.id;
+    }
+    
     if (!recipeToSubmit.image || recipeToSubmit.image.trim() === '') {
       recipeToSubmit.image = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&auto=format';
+    } else {
+      recipeToSubmit.image = recipeToSubmit.image.trim();
+    }
+    
+    recipeToSubmit.ingredients = recipeToSubmit.ingredients.filter(item => item.trim() !== '');
+    if (recipeToSubmit.ingredients.length === 0) {
+      recipeToSubmit.ingredients = ['Add your ingredients'];
+    }
+    
+    recipeToSubmit.instructions = recipeToSubmit.instructions.filter(item => item.trim() !== '');
+    if (recipeToSubmit.instructions.length === 0) {
+      recipeToSubmit.instructions = ['Add your instructions'];
+    }
+    
+    if (!Array.isArray(recipeToSubmit.dietary)) {
+      recipeToSubmit.dietary = [];
     }
     
     setIsLoading(true);
@@ -117,14 +148,27 @@ export default function RecipeForm() {
     
     try {
       if (isEditMode) {
-        await api.put(`/recipes/${recipeId}/`, recipeToSubmit);
-        navigate(`/recipes/${recipeId}`);
+        await api.recipes.update(recipeId, recipeToSubmit);
+        navigate('/recipes');
       } else {
-        const response = await api.post('/recipes/', recipeToSubmit);
-        navigate(`/recipes/${response.data.id}`);
+        await api.recipes.create(recipeToSubmit);
+        navigate('/recipes');
       }
     } catch (err) {
-      setError('Failed to save recipe. Please try again.');
+      console.error("Recipe save error:", err);
+      
+      if (err.response?.data && typeof err.response.data === 'object') {
+        if (err.response.data.image) {
+          setError('Please enter a valid image URL or leave blank for default image');
+        } else {
+          const errorMessages = Object.entries(err.response.data)
+            .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+            .join('; ');
+          setError(errorMessages);
+        }
+      } else {
+        setError(err.response?.data?.error || 'Failed to save recipe. Please try again.');
+      }
       setIsLoading(false);
     }
   };
@@ -180,7 +224,11 @@ export default function RecipeForm() {
             name="image"
             value={recipe.image}
             onChange={handleChange}
-            style={{ width: '100%', padding: 'var(--spacing-sm)', borderRadius: 'var(--border-radius-sm)' }}
+            style={{ 
+              width: '100%', 
+              padding: 'var(--spacing-sm)', 
+              borderRadius: 'var(--border-radius-sm)'
+            }}
             placeholder="Enter image URL (optional)"
           />
         </div>
@@ -243,13 +291,15 @@ export default function RecipeForm() {
                 id={`remove-ingredient-${index}`}
                 name={`remove-ingredient-${index}`}
                 onClick={() => removeIngredient(index)}
+                disabled={recipe.ingredients.length <= 1}
                 style={{ 
                   marginLeft: 'var(--spacing-sm)',
-                  backgroundColor: '#f44336',
+                  backgroundColor: recipe.ingredients.length <= 1 ? '#ccc' : '#f44336',
                   color: 'white',
                   border: 'none',
                   borderRadius: 'var(--border-radius-sm)',
-                  padding: '0 var(--spacing-sm)'
+                  padding: '0 var(--spacing-sm)',
+                  cursor: recipe.ingredients.length <= 1 ? 'not-allowed' : 'pointer'
                 }}
                 aria-label={`Remove ingredient ${index + 1}`}
               >
@@ -267,7 +317,15 @@ export default function RecipeForm() {
               border: '1px solid var(--color-primary)',
               color: 'var(--color-primary)',
               padding: 'var(--spacing-xs) var(--spacing-md)',
-              borderRadius: 'var(--border-radius-sm)'
+              borderRadius: 'var(--border-radius-sm)',
+              cursor: 'pointer',
+              transition: "all 0.2s ease"
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = "rgba(46, 107, 70, 0.1)";
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = "var(--color-background)";
             }}
           >
             Add Ingredient
@@ -299,14 +357,16 @@ export default function RecipeForm() {
                 id={`remove-instruction-${index}`}
                 name={`remove-instruction-${index}`}
                 onClick={() => removeInstruction(index)}
+                disabled={recipe.instructions.length <= 1}
                 style={{ 
                   marginLeft: 'var(--spacing-sm)',
-                  backgroundColor: '#f44336',
+                  backgroundColor: recipe.instructions.length <= 1 ? '#ccc' : '#f44336',
                   color: 'white',
                   border: 'none',
                   borderRadius: 'var(--border-radius-sm)',
                   padding: '0 var(--spacing-sm)',
-                  alignSelf: 'flex-start'
+                  alignSelf: 'flex-start',
+                  cursor: recipe.instructions.length <= 1 ? 'not-allowed' : 'pointer'
                 }}
                 aria-label={`Remove instruction ${index + 1}`}
               >
@@ -324,7 +384,15 @@ export default function RecipeForm() {
               border: '1px solid var(--color-primary)',
               color: 'var(--color-primary)',
               padding: 'var(--spacing-xs) var(--spacing-md)',
-              borderRadius: 'var(--border-radius-sm)'
+              borderRadius: 'var(--border-radius-sm)',
+              cursor: 'pointer',
+              transition: "all 0.2s ease"
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = "rgba(46, 107, 70, 0.1)";
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = "var(--color-background)";
             }}
           >
             Add Instruction
@@ -342,7 +410,9 @@ export default function RecipeForm() {
             border: 'none',
             padding: 'var(--spacing-md)',
             borderRadius: 'var(--border-radius-sm)',
-            marginTop: 'var(--spacing-md)'
+            marginTop: 'var(--spacing-md)',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.7 : 1
           }}
         >
           {isLoading ? 'Saving...' : (isEditMode ? 'Update Recipe' : 'Create Recipe')}

@@ -10,9 +10,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await api.get('/auth/user/');
+        const response = await api.auth.getCurrentUser();
         setCurrentUser(response.data);
       } catch (error) {
+        // Don't log 403 errors since they're expected when not logged in
+        if (!error.response || error.response.status !== 403) {
+          console.error("Error checking user status:", error);
+        }
         setCurrentUser(null);
       } finally {
         setLoading(false);
@@ -24,19 +28,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const csrfToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrftoken='))
-        ?.split('=')[1];
-        
-      const response = await api.post('/auth/login/', { username, password }, {
-        headers: {
-          'X-CSRFToken': csrfToken
-        }
-      });
-      setCurrentUser(response.data.user);
-      return { success: true };
+      const response = await api.auth.login({ username, password });
+      if (response.data.success) {
+        setCurrentUser(response.data.user);
+        return { success: true };
+      } else {
+        return { 
+          success: false, 
+          error: response.data.error || 'Login failed'
+        };
+      }
     } catch (error) {
+      console.error("Login error:", error);
       return {
         success: false,
         error: error.response?.data?.error || 'Login failed'
@@ -46,10 +49,18 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, password) => {
     try {
-      const response = await api.post('/auth/register/', { username, password });
-      setCurrentUser(response.data.user);
-      return { success: true };
+      const response = await api.auth.register({ username, password });
+      if (response.data.success) {
+        setCurrentUser(response.data.user);
+        return { success: true };
+      } else {
+        return { 
+          success: false, 
+          error: response.data.error || 'Registration failed'
+        };
+      }
     } catch (error) {
+      console.error("Registration error:", error);
       return {
         success: false,
         error: error.response?.data?.error || 'Registration failed'
@@ -59,19 +70,11 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const csrfToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrftoken='))
-        ?.split('=')[1];
-        
-      await api.post('/auth/logout/', {}, {
-        headers: {
-          'X-CSRFToken': csrfToken
-        }
-      });
+      await api.auth.logout();
       setCurrentUser(null);
       return { success: true };
     } catch (error) {
+      console.error("Logout error:", error);
       setCurrentUser(null);
       return { success: true };
     }

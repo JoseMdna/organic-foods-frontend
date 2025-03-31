@@ -1,7 +1,8 @@
 import { getCuratedProducts } from '../mockData';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import ProductCard from '../components/ProductCard';
+import api from '../api';
 import './Home.css';
 
 export default function Home() {
@@ -13,14 +14,33 @@ export default function Home() {
     dietary: [],
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [featuredRecipes, setFeaturedRecipes] = useState([]);
+  const [recipesLoading, setRecipesLoading] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchFeaturedRecipes = async () => {
+      setRecipesLoading(true);
+      try {
+        const response = await api.recipes.getAll();
+        if (response.data && response.data.length > 0) {
+          setFeaturedRecipes(response.data.slice(0, 2));
+        }
+      } catch (error) {
+        console.error("Error fetching featured recipes:", error);
+      } finally {
+        setRecipesLoading(false);
+      }
+    };
+    
+  fetchFeaturedRecipes();
+}, []);
+
+useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const search = params.get('search');
-    if (search) {
-      setSearchQuery(search);
-    }
+    const search = params.get('search') || '';
+    setSearchQuery(search);
   }, [location.search]);
 
   useEffect(() => {
@@ -76,7 +96,24 @@ export default function Home() {
   };
 
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    const params = new URLSearchParams(location.search);
+    if (value) {
+      params.set('search', value);
+    } else {
+      params.delete('search');
+    }
+    
+    const newSearch = params.toString() ? `?${params.toString()}` : '';
+    navigate(`/${newSearch}`, { replace: true });
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
   };
 
   if (loading) return <div className="loading">Loading products...</div>;
@@ -101,6 +138,7 @@ export default function Home() {
             placeholder="Search products..." 
             value={searchQuery}
             onChange={handleSearch}
+            onKeyDown={handleKeyDown}
           />
         </div>
         
@@ -215,37 +253,63 @@ export default function Home() {
       <section className="recipes-preview">
         <h2>Tasty Recipe Ideas</h2>
         <div className="recipes-grid">
-          <div className="recipe-card">
-          <div className="recipe-image" style={{ height: '200px', overflow: 'hidden' }}>
-  <img 
-    src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=800&fit=crop&q=80" 
-    alt="Summer vegetable salad" 
-    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-  />
-</div>
-            <h3>Summer Vegetable Salad</h3>
-            <p>Fresh, crisp, and perfect for warm days</p>
-            <div className="recipe-nutrition">
-              <span>Organic</span> <span className="divider">•</span> <span>Vegan</span> <span className="divider">•</span> <span>Gluten-Free</span>
+          {recipesLoading ? (
+            <div className="recipe-card">
+              <div className="recipe-image" style={{ 
+                height: '200px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'var(--color-background)'
+              }}>
+                <div style={{ padding: '20px', textAlign: 'center' }}>Loading recipes...</div>
+              </div>
+              <h3>Loading Recipes</h3>
+              <p>Please wait while we fetch our delicious recipes</p>
             </div>
-            <Link to="/recipes/summer-salad" className="recipe-link">View Recipe</Link>
-          </div>
-          
-          <div className="recipe-card">
-          <div className="recipe-image" style={{ height: '200px', overflow: 'hidden' }}>
-  <img 
-    src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=800&fit=crop&q=80" 
-    alt="Organic quinoa bowl" 
-    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-  />
-</div>
-            <h3>Organic Quinoa Bowl</h3>
-            <p>Nutrient-packed complete meal with local vegetables</p>
-            <div className="recipe-nutrition">
-              <span>Organic</span> <span className="divider">•</span> <span>Protein-Rich</span> <span className="divider">•</span> <span>Vegan</span>
+          ) : featuredRecipes.length > 0 ? (
+            featuredRecipes.map(recipe => (
+              <div key={recipe.id} className="recipe-card">
+                <div className="recipe-image" style={{ height: '200px', overflow: 'hidden' }}>
+                  <img 
+                    src={recipe.image} 
+                    alt={recipe.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&h=800&fit=crop&q=80";
+                    }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </div>
+                <h3>{recipe.title}</h3>
+                <p>{recipe.description}</p>
+                <div className="recipe-nutrition">
+                  {recipe.dietary && recipe.dietary.map((diet, index) => (
+                    <React.Fragment key={diet}>
+                      <span>{diet}</span>
+                      {index < recipe.dietary.length - 1 && <span className="divider">•</span>}
+                    </React.Fragment>
+                  ))}
+                </div>
+                <Link to={`/recipes/${recipe.id}`} className="recipe-link">View Recipe</Link>
+              </div>
+            ))
+          ) : (
+            <div className="recipe-card">
+              <div className="recipe-image" style={{ 
+                height: '200px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'var(--color-background)'
+              }}>
+                <div style={{ padding: '20px', textAlign: 'center' }}>No Recipes Available</div>
+              </div>
+              <h3>Create Your First Recipe</h3>
+              <p>Head to the recipes page to create and share your culinary creations</p>
+              <Link to="/recipes" className="recipe-link">View Recipes</Link>
             </div>
-            <Link to="/recipes/quinoa-bowl" className="recipe-link">View Recipe</Link>
-          </div>
+          )}
         </div>
         <div className="view-all-recipes">
           <Link to="/recipes">View All Recipes</Link>

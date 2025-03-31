@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../api';
@@ -13,84 +13,28 @@ export default function RecipeDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageError, setImageError] = useState(false);
   
-  const hardcodedRecipes = useMemo(() => ({
-    'summer-salad': {
-      title: 'Summer Vegetable Salad',
-      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format',
-      description: 'A refreshing summer salad made with fresh, organic vegetables.',
-      ingredients: [
-        '2 cups mixed organic greens',
-        '1 organic cucumber, sliced',
-        '1 organic bell pepper, diced',
-        '1 cup cherry tomatoes, halved',
-        '1/4 cup red onion, thinly sliced',
-        '1/4 cup olive oil',
-        '2 tbsp balsamic vinegar',
-        'Salt and pepper to taste'
-      ],
-      instructions: [
-        'Wash and prepare all vegetables.',
-        'Combine greens, cucumber, bell pepper, tomatoes, and onion in a large bowl.',
-        'Whisk together olive oil, vinegar, salt, and pepper.',
-        'Drizzle dressing over salad and toss gently.',
-        'Serve immediately and enjoy!'
-      ],
-      dietary: ['Organic', 'Vegan', 'Gluten-Free']
-    },
-    
-    'quinoa-bowl': {
-      title: 'Organic Quinoa Bowl',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format',
-      description: 'A nutrient-packed complete meal with local vegetables and protein-rich quinoa.',
-      ingredients: [
-        '1 cup organic quinoa',
-        '2 cups vegetable broth',
-        '1 cup organic kale, chopped',
-        '1 organic sweet potato, diced and roasted',
-        '1/2 cup organic chickpeas, drained and rinsed',
-        '1/4 cup sliced almonds',
-        '2 tbsp olive oil',
-        '1 tbsp lemon juice',
-        'Salt and pepper to taste'
-      ],
-      instructions: [
-        'Rinse quinoa and cook in vegetable broth according to package instructions.',
-        'Roast sweet potato with olive oil at 400°F for 25 minutes.',
-        'In a large bowl, combine cooked quinoa, kale, roasted sweet potato, and chickpeas.',
-        'Whisk together olive oil, lemon juice, salt, and pepper.',
-        'Drizzle dressing over the bowl and top with sliced almonds.',
-        'Serve warm or cold.'
-      ],
-      dietary: ['Organic', 'Protein-Rich', 'Vegan']
-    }
-  }), []);
-
   useEffect(() => {
     setLoading(true);
     setImageError(false);
     
-    if (!isNaN(parseInt(recipeId))) {
-      api.get(`/recipes/${recipeId}/`)
-        .then(res => {
-          setRecipe(res.data);
+    const fetchRecipe = async () => {
+      try {
+        const response = await api.recipes.getById(recipeId);
+        if (response.data) {
+          setRecipe(response.data);
           setLoading(false);
-        })
-        .catch(err => {
-          if (hardcodedRecipes[recipeId]) {
-            setRecipe(hardcodedRecipes[recipeId]);
-          } else {
-            setError("Recipe not found");
-          }
+        } else {
+          setError("Recipe not found");
           setLoading(false);
-        });
-    } else if (hardcodedRecipes[recipeId]) {
-      setRecipe(hardcodedRecipes[recipeId]);
-      setLoading(false);
-    } else {
-      setError("Recipe not found");
-      setLoading(false);
-    }
-  }, [recipeId, hardcodedRecipes]);
+        }
+      } catch (error) {
+        setError("Recipe not found");
+        setLoading(false);
+      }
+    };
+    
+    fetchRecipe();
+  }, [recipeId]);
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -98,11 +42,15 @@ export default function RecipeDetailPage() {
 
   const confirmDelete = async () => {
     try {
-      await api.delete(`/recipes/${recipeId}/`);
-      navigate('/recipes');
+      if (isAuthenticated && currentUser && recipe.created_by_username === currentUser.username) {
+        await api.recipes.delete(recipeId);
+        navigate('/recipes');
+      } else {
+        setError('You do not have permission to delete this recipe');
+        setShowDeleteModal(false);
+      }
     } catch (error) {
       setError('Failed to delete recipe');
-    } finally {
       setShowDeleteModal(false);
     }
   };
