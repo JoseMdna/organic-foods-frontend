@@ -113,6 +113,12 @@ export default function RecipeForm() {
       return;
     }
     
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setError('Your session has expired. Please log in again.');
+      return;
+    }
+    
     const recipeToSubmit = { ...recipe };
     
     if (isEditMode) {
@@ -157,7 +163,9 @@ export default function RecipeForm() {
     } catch (err) {
       console.error("Recipe save error:", err);
       
-      if (err.response?.data && typeof err.response.data === 'object') {
+      if (err.response?.status === 403) {
+        setError('You must be logged in to create or edit recipes');
+      } else if (err.response?.data && typeof err.response.data === 'object') {
         if (err.response.data.image) {
           setError('Please enter a valid image URL or leave blank for default image');
         } else {
@@ -167,7 +175,7 @@ export default function RecipeForm() {
           setError(errorMessages);
         }
       } else {
-        setError(err.response?.data?.error || 'Failed to save recipe. Please try again.');
+        setError('Failed to save recipe. Please try again.');
       }
       setIsLoading(false);
     }

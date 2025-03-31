@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { getCuratedProducts } from './mockData';
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 const API_URL = 'https://organic-foods-api.onrender.com/api';
 
-function getCookie(name) {
+export function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
     const cookies = document.cookie.split(';');
@@ -24,14 +24,16 @@ const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'X-CSRFToken': getCookie('csrftoken'),
   },
-  withCredentials: true,
+  withCredentials: false,
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    config.headers['X-CSRFToken'] = getCookie('csrftoken');
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -40,12 +42,6 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
-    if (error.response && 
-        error.response.status === 403 && 
-        error.config.url === '/auth/user/') {
-      return Promise.reject(error);
-    }
-    
     console.error("API Error:", error);
     return Promise.reject(error);
   }
@@ -91,7 +87,18 @@ const api = {
           } 
         });
       }
-      return axiosInstance.post('/auth/register/', userData);
+      return axiosInstance.post('/auth/register/', userData).then(response => {
+        if (response.data.token) {
+          localStorage.setItem('authToken', response.data.token);
+          localStorage.setItem('currentUser', JSON.stringify(response.data.user || { username: userData.username }));
+        }
+        return {
+          data: {
+            success: true,
+            user: response.data.user || { username: userData.username }
+          }
+        };
+      });
     },
     
     login: (credentials) => {
@@ -107,7 +114,18 @@ const api = {
           } 
         });
       }
-      return axiosInstance.post('/auth/login/', credentials);
+      return axiosInstance.post('/auth/login/', credentials).then(response => {
+        if (response.data.token) {
+          localStorage.setItem('authToken', response.data.token);
+          localStorage.setItem('currentUser', JSON.stringify(response.data.user || { username: credentials.username }));
+        }
+        return {
+          data: {
+            success: true,
+            user: response.data.user || { username: credentials.username }
+          }
+        };
+      });
     },
     
     logout: () => {
@@ -115,7 +133,11 @@ const api = {
         localStorage.removeItem('mock_user');
         return Promise.resolve({ data: { success: true } });
       }
-      return axiosInstance.post('/auth/logout/');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
+      return axiosInstance.post('/auth/logout/').then(() => {
+        return { data: { success: true } };
+      });
     },
     
     getCurrentUser: () => {
@@ -126,6 +148,12 @@ const api = {
         }
         return Promise.reject({ response: { status: 403 } });
       }
+      
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        return Promise.resolve({ data: JSON.parse(savedUser) });
+      }
+      
       return axiosInstance.get('/auth/user/');
     },
   },
@@ -163,6 +191,17 @@ const api = {
         mockRecipes.push(newRecipe);
         return Promise.resolve({ data: newRecipe });
       }
+      
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return Promise.reject({ 
+          response: { 
+            status: 403, 
+            data: { detail: "Authentication required" } 
+          } 
+        });
+      }
+      
       return axiosInstance.post('/recipes/', recipeData);
     },
     
@@ -179,6 +218,17 @@ const api = {
         }
         return Promise.reject({ response: { status: 404 } });
       }
+      
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return Promise.reject({ 
+          response: { 
+            status: 403, 
+            data: { detail: "Authentication required" } 
+          } 
+        });
+      }
+      
       return axiosInstance.put(`/recipes/${id}/`, recipeData);
     },
     
@@ -191,6 +241,17 @@ const api = {
         }
         return Promise.reject({ response: { status: 404 } });
       }
+      
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return Promise.reject({ 
+          response: { 
+            status: 403, 
+            data: { detail: "Authentication required" } 
+          } 
+        });
+      }
+      
       return axiosInstance.delete(`/recipes/${id}/`);
     },
   },

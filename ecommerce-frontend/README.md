@@ -1,10 +1,14 @@
 # OrganicFoods
 
-A full-stack e-commerce platform focused on organic and locally-sourced food products. Users can browse products by category, filter by dietary preferences, view nutritional information, add items to cart, and discover healthy recipes.
+A full-stack e-commerce platform focused on organic and locally-sourced food products. Users can browse products by category, filter by dietary preferences, view detailed product information, and discover healthy recipes.
 
 ## Screenshots
 
 ![OrganicFoods Homepage](public/images/OrganicFoods%20HomePage.png)
+
+## Live Demo
+
+Visit the live application at [https://glistening-hamster-238910.netlify.app/](https://glistening-hamster-238910.netlify.app/)
 
 ## Description
 
@@ -12,44 +16,50 @@ A full-stack e-commerce platform focused on organic and locally-sourced food pro
 
 OrganicFoods provides a comprehensive online shopping experience with these core features:
 
-- **Product Browsing**: Filter products by category (vegetables, fruits, dairy, grains) and dietary preferences (organic, vegan, gluten-free, locally sourced)
-- **Detailed Product Information**: View nutritional facts, sourcing details, and environmental impact
-- **Shopping Cart**: Add products, adjust quantities, and manage your cart with persistent storage
-- **Recipe Collection**: Discover farm-to-table recipes that utilize seasonal organic ingredients
-- **Responsive Design**: Enjoy a seamless shopping experience on any device
+- **Product Browsing**: Browse organic products with detailed information
+- **Detailed Product Information**: View sourcing details and nutritional facts
+- **Recipe Collection**: Discover recipes that use organic ingredients
+- **Recipe Creation**: Authenticated users can create, edit, and share their own recipes
+- **User Authentication**: Secure login and registration system
+- **Responsive Design**: Seamless experience on any device
 
 ### Why I Built It
 
-I created this application to bridge the gap between local organic farmers and consumers who value healthy, sustainable food. The platform promotes:
+I created this application to help local cunsumers find organic high quality products, some of the benefits:
 
 - Sustainable agriculture practices
-- Reduced food miles through local sourcing
 - Transparency about food origins and production methods
 - Education about organic foods through recipes and product information
+
+## Getting Started
+
+* [Backend Repository](https://github.com/JoseMdna/organic-foods-backend)
+* [Frontend Repository](https://github.com/JoseMdna/organic-foods-frontend)
+
 
 ## Attributions
 
 This app was built using the following tools and resources:
 
 - Product images from [Unsplash](https://unsplash.com)
-- Open Food Facts API for product data
+- Custom curated product data for organic foods
 
 ## Technologies Used
 
 ### Frontend
 - React
-- CSS with custom variables for consistent styling
+- Axios for API requests
 
 ### Backend
-- Django REST Framework for API endpoints
-- PostgreSQL database
-- JSON Web Tokens for authentication
-- Custom serializers for complex data relationships
+- Django REST Framework
+- PostgreSQL database 
+- Django's built-in authentication
+- CORS configuration for secure cross-origin requests
 
 ### Development & Deployment
 - Git and GitHub for version control
-- Axios for API requests
-- Open Food Facts API integration
+- Netlify for frontend deployment
+- Render for backend and database deployment
 
 ## Next Steps
 
@@ -57,6 +67,7 @@ Future enhancements planned for OrganicFoods include:
 
 1. **Farmer Profiles**: Feature the local farmers who supply the products
 2. **Seasonal Collections**: Highlight products that are currently in season
-3. **Sustainability Metrics**: Add detailed information about carbon footprint and water usage for each product
+3. **Shopping Cart**: Implement full e-commerce functionality with checkout
 4. **Recipe Filtering**: Allow users to filter recipes by dietary preferences and ingredients
-5. **Mobile App**: Develop a dedicated mobile application for a more streamlined experience
+5. **User Reviews**: Enable users to leave reviews on products and recipes
+6. **Favorites System**: Allow users to save favorite products and recipes
