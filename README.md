@@ -4,7 +4,7 @@ A full-stack e-commerce platform focused on organic and locally-sourced food pro
 
 ## Screenshots
 
-![OrganicFoods Homepage](public/images/OrganicFoods%20HomePage.png)
+![OrganicFoods Homepage](/ecommerce-frontend/public/images/OrganicFoods%20HomePage.png)
 
 ## Live app demo
 
