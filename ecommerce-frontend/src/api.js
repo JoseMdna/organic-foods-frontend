@@ -1,24 +1,9 @@
 import axios from 'axios';
 import { getCuratedProducts } from './mockData';
 
-const USE_MOCK_DATA = false;
+const USE_MOCK_DATA = true;
 
-const API_URL = 'https://organic-foods-api.onrender.com/api';
-
-export function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
+const API_URL = "https://organic-foods-app-fa421048beb7.herokuapp.com/";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -32,7 +17,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['Authorization'] = `Token ${token}`;
     }
     return config;
   },
@@ -42,10 +27,31 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
-    console.error("API Error:", error);
     return Promise.reject(error);
   }
 );
+
+function processImageUrl(url) {
+  if (!url || url.trim() === '') {
+    return 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&auto=format';
+  }
+  
+  url = url.trim();
+  
+  if (url.includes('googleusercontent.com') || url.includes('https://www.google.com/url')) {
+    const match = url.match(/imgurl=([^&]+)/);
+    if (match && match[1]) {
+      return decodeURIComponent(match[1]);
+    }
+  }
+  
+  if (url.includes('imgur.com') && !url.includes('i.imgur.com')) {
+    const imgurId = url.split('/').pop().split('.')[0];
+    return `https://i.imgur.com/${imgurId}.jpg`;
+  }
+  
+  return url;
+}
 
 const mockRecipes = [
   {
@@ -76,18 +82,26 @@ const api = {
   auth: {
     register: (userData) => {
       if (USE_MOCK_DATA) {
+        const mockToken = "mock-token-" + Math.random().toString(36).substring(2);
+        localStorage.setItem('authToken', mockToken);
         localStorage.setItem('mock_user', JSON.stringify({ 
+          username: userData.username, 
+          id: 1 
+        }));
+        localStorage.setItem('currentUser', JSON.stringify({ 
           username: userData.username, 
           id: 1 
         }));
         return Promise.resolve({ 
           data: { 
-            success: true, 
+            success: true,
+            token: mockToken,
             user: { username: userData.username, id: 1 } 
           } 
         });
       }
-      return axiosInstance.post('/auth/register/', userData).then(response => {
+      
+      return axiosInstance.post('api/auth/register/', userData).then(response => {
         if (response.data.token) {
           localStorage.setItem('authToken', response.data.token);
           localStorage.setItem('currentUser', JSON.stringify(response.data.user || { username: userData.username }));
@@ -95,6 +109,7 @@ const api = {
         return {
           data: {
             success: true,
+            token: response.data.token,
             user: response.data.user || { username: userData.username }
           }
         };
@@ -103,18 +118,26 @@ const api = {
     
     login: (credentials) => {
       if (USE_MOCK_DATA) {
+        const mockToken = "mock-token-" + Math.random().toString(36).substring(2);
+        localStorage.setItem('authToken', mockToken);
         localStorage.setItem('mock_user', JSON.stringify({ 
+          username: credentials.username, 
+          id: 1 
+        }));
+        localStorage.setItem('currentUser', JSON.stringify({ 
           username: credentials.username, 
           id: 1 
         }));
         return Promise.resolve({ 
           data: { 
-            success: true, 
+            success: true,
+            token: mockToken,
             user: { username: credentials.username, id: 1 } 
           } 
         });
       }
-      return axiosInstance.post('/auth/login/', credentials).then(response => {
+      
+      return axiosInstance.post('api/auth/login/', credentials).then(response => {
         if (response.data.token) {
           localStorage.setItem('authToken', response.data.token);
           localStorage.setItem('currentUser', JSON.stringify(response.data.user || { username: credentials.username }));
@@ -122,6 +145,7 @@ const api = {
         return {
           data: {
             success: true,
+            token: response.data.token,
             user: response.data.user || { username: credentials.username }
           }
         };
@@ -131,13 +155,21 @@ const api = {
     logout: () => {
       if (USE_MOCK_DATA) {
         localStorage.removeItem('mock_user');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
         return Promise.resolve({ data: { success: true } });
       }
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentUser');
-      return axiosInstance.post('/auth/logout/').then(() => {
+      
+      const logoutPromise = axiosInstance.post('api/auth/logout/').then(() => {
         return { data: { success: true } };
+      }).catch(error => {
+        return { data: { success: true } };
+      }).finally(() => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
       });
+      
+      return logoutPromise;
     },
     
     getCurrentUser: () => {
@@ -150,11 +182,13 @@ const api = {
       }
       
       const savedUser = localStorage.getItem('currentUser');
-      if (savedUser) {
+      const token = localStorage.getItem('authToken');
+      
+      if (savedUser && token) {
         return Promise.resolve({ data: JSON.parse(savedUser) });
       }
       
-      return axiosInstance.get('/auth/user/');
+      return axiosInstance.get('api/auth/user/');
     },
   },
   
@@ -163,7 +197,7 @@ const api = {
       if (USE_MOCK_DATA) {
         return Promise.resolve({ data: mockRecipes });
       }
-      return axiosInstance.get('/recipes/');
+      return axiosInstance.get('api/recipes/');
     },
     
     getById: (id) => {
@@ -174,13 +208,15 @@ const api = {
         }
         return Promise.reject({ response: { status: 404 } });
       }
-      return axiosInstance.get(`/recipes/${id}/`);
+      return axiosInstance.get(`api/recipes/${id}/`);
     },
     
     create: (recipeData) => {
       if (USE_MOCK_DATA) {
-        const user = localStorage.getItem('mock_user');
+        const user = localStorage.getItem('currentUser') || localStorage.getItem('mock_user');
         const username = user ? JSON.parse(user).username : "demo_user";
+        
+        recipeData.image = processImageUrl(recipeData.image);
         
         const newRecipe = {
           ...recipeData,
@@ -202,13 +238,17 @@ const api = {
         });
       }
       
-      return axiosInstance.post('/recipes/', recipeData);
+      recipeData.image = processImageUrl(recipeData.image);
+      
+      return axiosInstance.post('api/recipes/', recipeData);
     },
     
     update: (id, recipeData) => {
       if (USE_MOCK_DATA) {
         const index = mockRecipes.findIndex(r => r.id.toString() === id.toString());
         if (index !== -1) {
+          recipeData.image = processImageUrl(recipeData.image);
+          
           mockRecipes[index] = {
             ...mockRecipes[index],
             ...recipeData,
@@ -229,7 +269,9 @@ const api = {
         });
       }
       
-      return axiosInstance.put(`/recipes/${id}/`, recipeData);
+      recipeData.image = processImageUrl(recipeData.image);
+      
+      return axiosInstance.put(`api/recipes/${id}/`, recipeData);
     },
     
     delete: (id) => {
@@ -252,7 +294,7 @@ const api = {
         });
       }
       
-      return axiosInstance.delete(`/recipes/${id}/`);
+      return axiosInstance.delete(`api/recipes/${id}/`);
     },
   },
   
@@ -261,7 +303,7 @@ const api = {
       if (USE_MOCK_DATA) {
         return Promise.resolve({ data: getCuratedProducts() });
       }
-      return axiosInstance.get('/products/');
+      return axiosInstance.get('api/products/');
     },
     
     getById: (id) => {
@@ -272,15 +314,9 @@ const api = {
         }
         return Promise.reject({ response: { status: 404 } });
       }
-      return axiosInstance.get(`/products/${id}/`);
+      return axiosInstance.get(`api/products/${id}/`);
     },
   },
-};
-
-export const setMockUser = (username) => {
-  if (USE_MOCK_DATA) {
-    localStorage.setItem('mock_user', JSON.stringify({ username, id: 1 }));
-  }
 };
 
 export default api;

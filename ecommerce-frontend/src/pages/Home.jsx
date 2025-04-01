@@ -28,7 +28,6 @@ export default function Home() {
           setFeaturedRecipes(response.data.slice(0, 2));
         }
       } catch (error) {
-        console.error("Error fetching featured recipes:", error);
       } finally {
         setRecipesLoading(false);
       }

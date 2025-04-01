@@ -17,7 +17,6 @@ export default function RecipesPage() {
         const response = await api.recipes.getAll();
         setRecipes(response.data);
       } catch (error) {
-        console.error("Error fetching recipes:", error);
         setRecipes([]);
       } finally {
         setLoading(false);

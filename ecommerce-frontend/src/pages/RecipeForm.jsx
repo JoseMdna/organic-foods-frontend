@@ -105,17 +105,11 @@ export default function RecipeForm() {
     });
   };
   
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!isAuthenticated) {
       setError('You must be logged in to create or edit recipes');
-      return;
-    }
-    
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      setError('Your session has expired. Please log in again.');
       return;
     }
     

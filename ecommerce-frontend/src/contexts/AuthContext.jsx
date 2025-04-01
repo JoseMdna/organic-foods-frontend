@@ -10,21 +10,29 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
+        const token = localStorage.getItem('authToken');
         const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
+        
+        if (token && savedUser) {
           setCurrentUser(JSON.parse(savedUser));
+          setLoading(false);
+          return;
+        } else if (!token) {
+          setCurrentUser(null);
+          localStorage.removeItem('currentUser');
           setLoading(false);
           return;
         }
         
         const response = await api.auth.getCurrentUser();
-        setCurrentUser(response.data);
-        localStorage.setItem('currentUser', JSON.stringify(response.data));
-      } catch (error) {
-        if (!error.response || error.response.status !== 403) {
-          console.error("Error checking user status:", error);
+        if (response.data) {
+          setCurrentUser(response.data);
+          localStorage.setItem('currentUser', JSON.stringify(response.data));
         }
+      } catch (error) {
         setCurrentUser(null);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
       } finally {
         setLoading(false);
       }
@@ -47,8 +55,6 @@ export const AuthProvider = ({ children }) => {
         };
       }
     } catch (error) {
-      console.error("Login error:", error);
-      
       let errorMessage = 'Login failed. Please check your credentials.';
       if (error.response?.data?.non_field_errors) {
         errorMessage = error.response.data.non_field_errors.join(', ');
@@ -77,8 +83,6 @@ export const AuthProvider = ({ children }) => {
         };
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      
       let errorMessage = 'Registration failed.';
       if (error.response?.data?.username) {
         errorMessage = `Username: ${error.response.data.username.join(', ')}`;
@@ -98,15 +102,11 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.auth.logout();
-      setCurrentUser(null);
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('authToken');
-      return { success: true };
     } catch (error) {
-      console.error("Logout error:", error);
-      setCurrentUser(null);
-      localStorage.removeItem('currentUser');
+    } finally {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
+      setCurrentUser(null);
       return { success: true };
     }
   };
