@@ -6,7 +6,7 @@ A full-stack e-commerce platform focused on organic and locally-sourced food pro
 
 ![OrganicFoods Homepage](public/images/OrganicFoods%20HomePage.png)
 
-## Live Demo
+## Live app demo
 
 Visit the live application at [https://glistening-hamster-238910.netlify.app/](https://glistening-hamster-238910.netlify.app/)
 
